@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Métacognitif — SEO / GEO</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; }
+
+/* ─── HERO ─── */
+.hero {
+  background: linear-gradient(135deg, #020c1b 0%, #030d1e 50%, #041224 100%);
+  padding: 44px 20px 36px; text-align: center;
+  border-bottom: 3px solid #0ea5e9;
+}
+.hero h1 { font-size: 1.9rem; color: #7dd3fc; margin-bottom: 6px; }
+.hero .sub { color: #94a3b8; font-size: 0.97rem; max-width: 560px; margin: 0 auto 14px; line-height: 1.6; }
+.badge-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; }
+
+/* ─── INTRO BOX ─── */
+.intro-box { max-width: 820px; margin: 28px auto 0; padding: 0 16px; }
+.meta-explain {
+  background: #041224; border: 1px solid #0369a1; border-radius: 14px;
+  padding: 24px 28px;
+}
+.meta-explain h2 { color: #38bdf8; margin-bottom: 14px; font-size: 1.1rem; }
+.meta-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+@media(max-width:600px){ .meta-grid { grid-template-columns: 1fr; } }
+.meta-cell { border-radius: 10px; padding: 14px; text-align: center; }
+.mc-green { background: #052e16; border: 1px solid #10b981; }
+.mc-yellow { background: #1c1500; border: 1px solid #f59e0b; }
+.mc-red { background: #1c0a0a; border: 1px solid #ef4444; }
+.mc-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.mc-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+.mc-green .mc-label { color: #10b981; }
+.mc-yellow .mc-label { color: #f59e0b; }
+.mc-red .mc-label { color: #ef4444; }
+.mc-desc { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
+
+.start-btn {
+  display: block; margin: 20px auto 0;
+  background: linear-gradient(135deg, #0369a1, #0ea5e9);
+  color: white; border: none; padding: 14px 40px;
+  border-radius: 12px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14,165,233,0.4); }
+
+/* ─── SCORE BAR ─── */
+.score-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #0d1117; border-bottom: 2px solid #0c2847;
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+}
+.score-label { color: #94a3b8; font-size: 0.85rem; }
+.score-value { color: #38bdf8; font-size: 1.2rem; font-weight: 700; min-width: 55px; }
+.progress-track { flex: 1; height: 6px; background: #1f2937; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #0ea5e9, #06b6d4); border-radius: 4px; transition: width .4s; width: 0%; }
+
+/* ─── CONTAINER ─── */
+.container { max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; display: none; }
+
+.section-title {
+  text-align: center; font-size: 1.2rem; font-weight: 700;
+  color: #38bdf8; margin: 32px 0 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title::before, .section-title::after {
+  content: ''; flex: 1; height: 2px;
+  background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+}
+
+/* ─── CARD ─── */
+.card {
+  background: #111827; border: 1px solid #1e293b;
+  border-radius: 14px; padding: 22px; margin-bottom: 22px;
+  transition: border-color .3s;
+}
+.card.answered { border-color: #0c2847; }
+
+.q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.q-num {
+  background: linear-gradient(135deg, #0369a1, #0ea5e9);
+  color: white; font-weight: 700; font-size: 0.8rem;
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.q-text { font-size: 0.96rem; line-height: 1.65; color: #e2e8f0; font-weight: 500; }
+
+.tag {
+  display: inline-block; font-size: 0.67rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 5px; margin-bottom: 5px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.tag-seo { background: #0c2847; color: #38bdf8; }
+.tag-geo { background: #052e16; color: #34d399; }
+.tag-gen { background: #1e1b4b; color: #a78bfa; }
+
+/* ─── CONFIDENCE STEP ─── */
+.step-label {
+  font-size: 0.78rem; color: #64748b; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+}
+.conf-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.conf-btn {
+  flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer;
+  border: 2px solid transparent; font-size: 0.82rem; font-weight: 600;
+  transition: all .2s; text-align: center; background: #0f172a;
+}
+.conf-btn:hover { transform: scale(1.03); }
+.cb-sure { border-color: #1a3a25; color: #34d399; }
+.cb-sure:hover, .cb-sure.sel { background: #052e16; border-color: #10b981; }
+.cb-maybe { border-color: #2a1f05; color: #fbbf24; }
+.cb-maybe:hover, .cb-maybe.sel { background: #1c1500; border-color: #f59e0b; }
+.cb-guess { border-color: #2a0f0f; color: #f87171; }
+.cb-guess:hover, .cb-guess.sel { background: #1c0a0a; border-color: #ef4444; }
+.conf-btn.sel { cursor: default; }
+.conf-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* ─── OPTIONS ─── */
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  background: #0f172a; border: 2px solid #1e293b;
+  border-radius: 10px; padding: 11px 16px;
+  cursor: pointer; display: flex; align-items: center; gap: 12px;
+  transition: all .2s; font-size: 0.91rem;
+  pointer-events: none;
+}
+.option.unlocked { pointer-events: auto; }
+.option:hover:not(.locked) { border-color: #0ea5e9; background: #0c1a2e; transform: translateX(3px); }
+.dot {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #1f2937; border: 2px solid #374151;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; flex-shrink: 0; transition: all .2s;
+}
+.option.correct { border-color: #10b981; background: #052e16; }
+.option.correct .dot { background: #10b981; border-color: #10b981; color: white; font-weight: 700; }
+.option.wrong { border-color: #ef4444; background: #1c0a0a; }
+.option.wrong .dot { background: #ef4444; border-color: #ef4444; color: white; }
+.option.locked { cursor: default; pointer-events: none; }
+
+/* ─── METACOGNITIVE FEEDBACK ─── */
+.meta-feedback {
+  display: none; margin-top: 14px;
+  border-radius: 11px; padding: 14px 16px;
+  font-size: 0.86rem; line-height: 1.65;
+}
+.meta-feedback.show { display: block; }
+
+.mf-mastered { background: #052e16; border: 2px solid #10b981; }
+.mf-mastered .mf-title { color: #10b981; font-weight: 700; font-size: 0.95rem; }
+.mf-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.mf-growth .mf-title { color: #4ade80; font-weight: 700; font-size: 0.95rem; }
+.mf-lucky { background: #1a1a2e; border: 2px solid #60a5fa; }
+.mf-lucky .mf-title { color: #60a5fa; font-weight: 700; font-size: 0.95rem; }
+.mf-blind { background: #2a0a00; border: 2px solid #f97316; }
+.mf-blind .mf-title { color: #f97316; font-weight: 700; font-size: 0.95rem; }
+.mf-known-gap { background: #1c1000; border: 2px solid #fbbf24; }
+.mf-known-gap .mf-title { color: #fbbf24; font-weight: 700; font-size: 0.95rem; }
+.mf-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.mf-gap .mf-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
+
+.mf-body { color: #94a3b8; margin-top: 4px; }
+.mf-answer { color: #e2e8f0; margin-top: 8px; font-size: 0.84rem; }
+.mf-answer b { color: #7dd3fc; }
+
+.reflect-prompt {
+  margin-top: 12px; padding: 10px 14px;
+  background: #0d1117; border: 1px dashed #0c2847;
+  border-radius: 8px;
+}
+.reflect-prompt p { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+.reflect-select {
+  width: 100%; background: #1f2937; border: 1px solid #374151;
+  color: #cbd5e1; padding: 7px 10px; border-radius: 7px;
+  font-size: 0.82rem; cursor: pointer;
+}
+
+/* ─── DASHBOARD ─── */
+.dashboard { display: none; max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; }
+.dash-hero {
+  background: linear-gradient(135deg, #020c1b, #030d1e);
+  border: 2px solid #0ea5e9; border-radius: 16px;
+  padding: 28px; text-align: center; margin-bottom: 28px;
+}
+.dash-hero h2 { color: #7dd3fc; font-size: 1.5rem; margin-bottom: 6px; }
+.dash-score { font-size: 3.5rem; font-weight: 900; color: #10b981; margin: 8px 0; }
+.dash-sub { color: #64748b; font-size: 0.9rem; }
+
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+@media(max-width:600px){ .dash-grid { grid-template-columns: 1fr; } }
+.dash-card { border-radius: 13px; padding: 18px; }
+.dc-mastered { background: #052e16; border: 2px solid #10b981; }
+.dc-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.dc-blind { background: #2a0a00; border: 2px solid #f97316; }
+.dc-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.dc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dc-icon { font-size: 1.4rem; }
+.dc-title { font-size: 0.95rem; font-weight: 700; }
+.dc-mastered .dc-title { color: #10b981; }
+.dc-growth .dc-title { color: #4ade80; }
+.dc-blind .dc-title { color: #f97316; }
+.dc-gap .dc-title { color: #f87171; }
+.dc-count { font-size: 2rem; font-weight: 900; margin-bottom: 6px; }
+.dc-mastered .dc-count { color: #10b981; }
+.dc-growth .dc-count { color: #4ade80; }
+.dc-blind .dc-count { color: #f97316; }
+.dc-gap .dc-count { color: #f87171; }
+.dc-desc { font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+
+.topic-list { margin-top: 8px; }
+.topic-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; margin: 4px 0;
+  background: rgba(0,0,0,0.2); border-radius: 7px;
+  font-size: 0.8rem; color: #cbd5e1;
+}
+.topic-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.plan-box {
+  background: #020c1b; border: 2px solid #0369a1;
+  border-radius: 14px; padding: 22px; margin-top: 24px;
+}
+.plan-box h3 { color: #38bdf8; margin-bottom: 16px; font-size: 1.05rem; }
+.plan-step {
+  display: flex; gap: 12px; align-items: flex-start;
+  margin-bottom: 14px; padding-bottom: 14px;
+  border-bottom: 1px solid #0c2847;
+}
+.plan-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.plan-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+}
+.pn-1 { background: #f97316; color: #0a0a0a; }
+.pn-2 { background: #fbbf24; color: #0a0a0a; }
+.pn-3 { background: #4ade80; color: #0a0a0a; }
+.plan-content { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+.plan-content b { color: #e2e8f0; }
+
+.restart-btn {
+  display: block; margin: 24px auto 0;
+  background: linear-gradient(135deg, #0369a1, #0284c7);
+  color: #e0f2fe; border: 1px solid #0ea5e9;
+  padding: 12px 32px; border-radius: 11px; cursor: pointer;
+  font-size: 0.9rem; font-weight: 600; transition: all .2s;
+}
+.restart-btn:hover { background: linear-gradient(135deg, #0284c7, #0ea5e9); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO + INTRO ═══════ -->
+<div class="hero">
+  <h1>🧠 Diagnostic Métacognitif — SEO / GEO</h1>
+  <p class="sub">Pas juste tester si tu sais — tester si tu <em>sais ce que tu sais</em>. Indique ta confiance <strong>avant</strong> de répondre.</p>
+  <div class="badge-row">
+    <span class="badge" style="background:#0c2847;color:#38bdf8;">🔵 SEO</span>
+    <span class="badge" style="background:#052e16;color:#34d399;">🟢 GEO</span>
+    <span class="badge" style="background:#1e1b4b;color:#a78bfa;">🟣 Général</span>
+    <span class="badge" style="background:#1e2433;color:#94a3b8;">15 questions · Être visible en 2026</span>
+  </div>
+</div>
+
+<div class="intro-box">
+  <div class="meta-explain">
+    <h2>🎯 Comment ça marche ?</h2>
+    <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;">Chaque question a <strong style="color:#e2e8f0;">2 étapes</strong>. D'abord tu dis ta confiance, ensuite tu réponds. L'objectif : repérer tes angles morts (tu t'es trompé mais t'étais sûr·e).</p>
+    <div class="meta-grid">
+      <div class="meta-cell mc-green">
+        <div class="mc-icon">🟢</div>
+        <div class="mc-label">Je suis sûr·e</div>
+        <div class="mc-desc">Tu maîtrises vraiment ou tu crois maîtriser ?</div>
+      </div>
+      <div class="meta-cell mc-yellow">
+        <div class="mc-icon">🟡</div>
+        <div class="mc-label">Je pense…</div>
+        <div class="mc-desc">Tu as une idée mais t'es pas certain·e</div>
+      </div>
+      <div class="meta-cell mc-red">
+        <div class="mc-icon">🔴</div>
+        <div class="mc-label">Je devine</div>
+        <div class="mc-desc">Tu n'as pas vraiment la réponse</div>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">🚀 Commencer le diagnostic</button>
+  </div>
+</div>
+
+<!-- ═══════ SCORE BAR ═══════ -->
+<div class="score-bar" id="scoreBar" style="display:none;">
+  <span class="score-label">Score</span>
+  <span class="score-value" id="scoreDisplay">0 / 15</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span style="color:#64748b;font-size:0.8rem;" id="progressText">0 / 15</span>
+</div>
+
+<!-- ═══════ QUESTIONS ═══════ -->
+<div class="container" id="quizContainer">
+
+  <!-- ── BLOC 1 : FONDAMENTAUX ── -->
+  <div class="section-title">📚 Fondamentaux SEO / GEO</div>
+
+  <!-- Q1 -->
+  <div class="card" id="card-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div>
+        <span class="tag tag-gen">Général</span>
+        <div class="q-text">Quelle est la différence fondamentale entre le SEO et le GEO ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(1,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(1,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(1,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="1" data-topic="SEO vs GEO">
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Le SEO cible les moteurs de recherche payants ; le GEO cible les moteurs gratuits</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Le SEO et le GEO sont deux noms pour la même pratique</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Le SEO vise à apparaître dans les résultats Google classiques ; le GEO vise à être cité par les IA génératives (ChatGPT, Perplexity, Gemini)</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Le GEO est une ancienne version du SEO, désormais obsolète</div>
+    </div>
+    <div class="meta-feedback" id="mf-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="card-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Dans quel ordre Google traite-t-il une page web pour la rendre visible dans ses résultats ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(2,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(2,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(2,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="2" data-topic="Processus Google (crawl → index → classement)">
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>Indexation → Crawling → Classement</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>Crawling → Indexation → Classement</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>Classement → Crawling → Indexation</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>Crawling → Classement → Indexation</div>
+    </div>
+    <div class="meta-feedback" id="mf-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="card-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div>
+        <span class="tag tag-geo">GEO</span>
+        <div class="q-text">Pour être cité par une IA générative (GEO), quel type de contenu est le plus efficace ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(3,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(3,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(3,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="3" data-topic="Contenu GEO">
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Des pages avec beaucoup de publicités pour augmenter la visibilité</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Des textes très longs de plus de 10 000 mots sur n'importe quel sujet</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Des images et vidéos sans texte pour attirer l'attention</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Un contenu structuré, clair, expert, avec des statistiques et des réponses précises aux questions</div>
+    </div>
+    <div class="meta-feedback" id="mf-3"></div>
+  </div>
+
+  <!-- ── BLOC 2 : INTENTIONS DE RECHERCHE ── -->
+  <div class="section-title">🎯 Intentions de Recherche</div>
+
+  <!-- Q4 -->
+  <div class="card" id="card-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Un utilisateur tape <em>"comment fonctionne le référencement naturel"</em>. Quelle est son intention de recherche ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(4,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(4,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(4,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="4" data-topic="Intention informationnelle">
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Informationnelle — il cherche à apprendre / comprendre</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Transactionnelle — il veut acheter quelque chose</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Navigationnelle — il cherche un site précis</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Commerciale — il compare des offres</div>
+    </div>
+    <div class="meta-feedback" id="mf-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="card-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Un utilisateur tape <em>"acheter iPhone 15 Pro pas cher"</em>. Quelle est son intention ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(5,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(5,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(5,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="5" data-topic="Intention transactionnelle">
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Informationnelle</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Navigationnelle</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Transactionnelle — il veut passer à l'achat</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Commerciale</div>
+    </div>
+    <div class="meta-feedback" id="mf-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="card-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Un utilisateur tape <em>"meilleur CRM pour startup"</em>. Quelle est son intention ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(6,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(6,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(6,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="6" data-topic="Intention commerciale">
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Informationnelle</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Transactionnelle</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Navigationnelle</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Commerciale — il compare avant d'acheter</div>
+    </div>
+    <div class="meta-feedback" id="mf-6"></div>
+  </div>
+
+  <!-- ── BLOC 3 : MOTS-CLÉS ── -->
+  <div class="section-title">🔑 Mots-clés & Outils</div>
+
+  <!-- Q7 -->
+  <div class="card" id="card-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Quels sont les 3 critères à analyser pour choisir un bon mot-clé ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(7,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(7,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(7,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="7" data-topic="Critères mots-clés (Volume, Difficulté, Pertinence)">
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>Volume de recherche, Difficulté, Pertinence</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>Prix, Longueur du mot, Popularité sur les réseaux</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>Nombre de lettres, Fréquence d'utilisation, Synonymes</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>Catégorie, Région géographique, Saison</div>
+    </div>
+    <div class="meta-feedback" id="mf-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="card-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Quel outil te montre les vraies questions que les internautes posent autour d'un sujet (représentées sous forme de bulles) ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(8,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(8,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(8,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="8" data-topic="Outil Answer the Public">
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Google Search Console</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Ubersuggest</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Answer the Public</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Google Analytics</div>
+    </div>
+    <div class="meta-feedback" id="mf-8"></div>
+  </div>
+
+  <!-- ── BLOC 4 : OPTIMISATION ON-PAGE ── -->
+  <div class="section-title">🏷️ Balises & Optimisation On-Page</div>
+
+  <!-- Q9 -->
+  <div class="card" id="card-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Quelle est la limite de caractères recommandée pour une Title Tag (balise titre) ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(9,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(9,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(9,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="9" data-topic="Title Tag 60 caractères">
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>30 caractères maximum</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>60 caractères maximum</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>120 caractères maximum</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>Pas de limite, Google s'adapte</div>
+    </div>
+    <div class="meta-feedback" id="mf-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="card-10">
+    <div class="q-header">
+      <div class="q-num">10</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Combien de balises H1 doit-il y avoir par page web en SEO ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(10,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(10,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(10,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="10" data-topic="H1 : 1 seule par page">
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Autant que possible pour renforcer le SEO</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>2 à 3 par page pour bien structurer</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Une seule H1 par page — c'est le titre principal</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Zéro, les H1 ne servent plus à rien en 2026</div>
+    </div>
+    <div class="meta-feedback" id="mf-10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="card-11">
+    <div class="q-header">
+      <div class="q-num">11</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">La Title Tag (balise titre) est-elle visible directement sur la page par le visiteur ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(11,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(11,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(11,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="11" data-topic="Title Tag invisible sur la page">
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Oui, c'est le grand titre affiché en haut de la page</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Non, elle apparaît dans l'onglet du navigateur et dans les résultats Google, pas sur la page elle-même</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Oui, c'est le sous-titre juste après le H1</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Non, personne ne peut jamais la voir</div>
+    </div>
+    <div class="meta-feedback" id="mf-11"></div>
+  </div>
+
+  <!-- ── BLOC 5 : LANDING PAGE & EMAIL ── -->
+  <div class="section-title">📧 Landing Page & Email Marketing</div>
+
+  <!-- Q12 -->
+  <div class="card" id="card-12">
+    <div class="q-header">
+      <div class="q-num">12</div>
+      <div>
+        <span class="tag tag-gen">Général</span>
+        <div class="q-text">Quels sont les 3 éléments indispensables d'une landing page efficace ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(12,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(12,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(12,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="12" data-topic="Landing page : message + preuve + CTA">
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Logo, menu de navigation, footer</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Beaucoup de texte, plusieurs CTA, des animations</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Message clair, Preuve (avis/résultats), 1 seul CTA</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Vidéo de présentation, chatbot, formulaire long</div>
+    </div>
+    <div class="meta-feedback" id="mf-12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="card" id="card-13">
+    <div class="q-header">
+      <div class="q-num">13</div>
+      <div>
+        <span class="tag tag-gen">Général</span>
+        <div class="q-text">Dans un email marketing, quel élément influence principalement le taux d'ouverture ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(13,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(13,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(13,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="13" data-topic="Email : objet → taux d'ouverture">
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>L'objet de l'email (subject line)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>La longueur du corps de l'email</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>Le nombre d'images dans l'email</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>La couleur du bouton CTA</div>
+    </div>
+    <div class="meta-feedback" id="mf-13"></div>
+  </div>
+
+  <!-- ── BLOC 6 : CONTENU & STRATÉGIE ── -->
+  <div class="section-title">✍️ Stratégie de Contenu</div>
+
+  <!-- Q14 -->
+  <div class="card" id="card-14">
+    <div class="q-header">
+      <div class="q-num">14</div>
+      <div>
+        <span class="tag tag-seo">SEO</span>
+        <div class="q-text">Quels sont les 3 types de contenus principaux pour une stratégie SEO complète ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(14,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(14,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(14,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="14" data-topic="3 types de contenu SEO">
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Posts Instagram, Stories, Reels</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Pages FAQ/Présentation, Articles de blog, Contenus de preuve (avis, études de cas)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Podcasts, Webinaires, PDF téléchargeables</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Publicités display, Bannières, Pop-ups</div>
+    </div>
+    <div class="meta-feedback" id="mf-14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="card-15">
+    <div class="q-header">
+      <div class="q-num">15</div>
+      <div>
+        <span class="tag tag-geo">GEO</span>
+        <div class="q-text">En 2026, pourquoi est-il important d'optimiser pour les IA génératives (GEO) en plus du SEO classique ?</div>
+      </div>
+    </div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(15,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(15,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(15,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="15" data-topic="Pourquoi le GEO en 2026">
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Parce que Google a disparu en 2025</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Parce que les IA remplacent complètement les sites web</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Parce qu'une part croissante des recherches se fait via des IA comme ChatGPT ou Perplexity — être cité là-dedans = nouvelle source de visibilité</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Parce que le GEO est obligatoire légalement depuis 2026</div>
+    </div>
+    <div class="meta-feedback" id="mf-15"></div>
+  </div>
+
+  <!-- FIN -->
+  <div style="text-align:center; margin-top:32px;">
+    <button onclick="showDashboard()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:16px 44px;border-radius:13px;font-size:1.05rem;font-weight:700;cursor:pointer;">
+      📊 Voir mon diagnostic complet
+    </button>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ═══════ DASHBOARD ═══════ -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-hero">
+    <h2>🧠 Ton Diagnostic SEO / GEO</h2>
+    <div class="dash-score" id="dashScore">—</div>
+    <div class="dash-sub" id="dashSub">Analyse de ta maîtrise et de tes angles morts</div>
+  </div>
+  <div class="dash-grid" id="dashGrid"></div>
+  <div class="plan-box">
+    <h3>🗺️ Ton plan de révision personnalisé</h3>
+    <div id="planSteps"></div>
+  </div>
+  <button class="restart-btn" onclick="restartQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+const TOTAL = 15;
+let scoreCount = 0;
+let answered = 0;
+const confidence = {};
+const results = {};
+
+function startQuiz() {
+  document.querySelector('.intro-box').style.display = 'none';
+  document.querySelector('.hero').style.borderBottomColor = '#0ea5e9';
+  document.getElementById('scoreBar').style.display = 'flex';
+  document.getElementById('quizContainer').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setConf(qNum, level, btn) {
+  if (confidence[qNum]) return;
+  confidence[qNum] = level;
+  const card = document.getElementById('card-' + qNum);
+  card.querySelectorAll('.conf-btn').forEach(b => {
+    b.classList.remove('sel');
+    b.classList.add('disabled');
+  });
+  btn.classList.remove('disabled');
+  btn.classList.add('sel');
+  card.querySelectorAll('.option').forEach(o => o.classList.add('unlocked'));
+}
+
+function choose(el, qNum) {
+  if (!confidence[qNum]) return;
+  const container = el.closest('.options');
+  if (container.dataset.locked) return;
+  container.dataset.locked = 'true';
+
+  const options = Array.from(container.querySelectorAll('.option'));
+  const idx = options.indexOf(el);
+  const correct = parseInt(container.dataset.correct);
+  const topic = container.dataset.topic;
+  const conf = confidence[qNum];
+  const isCorrect = idx === correct;
+
+  options.forEach(o => o.classList.add('locked'));
+  options[correct].classList.add('correct');
+  options[correct].querySelector('.dot').textContent = '✓';
+
+  if (isCorrect) {
+    scoreCount++;
+  } else {
+    el.classList.add('wrong');
+    el.querySelector('.dot').textContent = '✗';
+  }
+
+  answered++;
+  document.getElementById('scoreDisplay').textContent = scoreCount + ' / ' + TOTAL;
+  document.getElementById('progressFill').style.width = (answered / TOTAL * 100) + '%';
+  document.getElementById('progressText').textContent = answered + ' / ' + TOTAL;
+
+  results[qNum] = { correct: isCorrect, conf, topic };
+  showMetaFeedback(qNum, isCorrect, conf, topic);
+  document.getElementById('card-' + qNum).classList.add('answered');
+}
+
+function showMetaFeedback(qNum, isCorrect, conf, topic) {
+  const mf = document.getElementById('mf-' + qNum);
+  let cls, title, body, reflect = false;
+
+  if (isCorrect && conf === 'sure') {
+    cls = 'mf-mastered'; title = '✅ Maîtrisé !';
+    body = 'Tu savais et t\'avais raison. Ce concept est solide dans ta tête.';
+  } else if (isCorrect && conf === 'maybe') {
+    cls = 'mf-growth'; title = '📈 Zone de progression';
+    body = 'Bonne réponse ! Mais tu n\'étais pas sûr·e — encore quelques révisions pour vraiment ancrer ça.';
+  } else if (isCorrect && conf === 'guess') {
+    cls = 'mf-lucky'; title = '🍀 Chanceux·se cette fois';
+    body = 'Bonne réponse, mais tu as deviné. Ne compte pas dessus à l\'examen — revois ce point.';
+    reflect = true;
+  } else if (!isCorrect && conf === 'sure') {
+    cls = 'mf-blind'; title = '🚨 Angle mort détecté !';
+    body = 'Tu étais sûr·e et tu t\'es trompé·e. C\'est le signal le plus important — ce concept est prioritaire à réviser.';
+    reflect = true;
+  } else if (!isCorrect && conf === 'maybe') {
+    cls = 'mf-known-gap'; title = '⚠️ Gap connu';
+    body = 'Tu sentais que tu n\'étais pas sûr·e, et effectivement. C\'est un point à travailler.';
+    reflect = true;
+  } else {
+    cls = 'mf-gap'; title = '📝 Gap honnête';
+    body = 'Tu ne savais pas et tu l\'as reconnu. Bonne conscience ! Revois ce sujet.';
+    reflect = true;
+  }
+
+  const answers = {
+    1: 'Le <b>SEO</b> = apparaître dans Google classique. Le <b>GEO</b> = être cité par les IA génératives (ChatGPT, Perplexity, Gemini).',
+    2: 'Ordre Google : <b>Crawling</b> (le robot découvre la page) → <b>Indexation</b> (la page est stockée) → <b>Classement</b> (la page est positionnée).',
+    3: 'Pour le GEO : contenu <b>structuré, expert, clair</b>, avec des stats, des réponses précises, des FAQ — ce que les IA aiment citer.',
+    4: '<b>Informationnelle</b> : l\'utilisateur cherche à comprendre/apprendre un concept. Type de contenu idéal : article de blog, FAQ.',
+    5: '<b>Transactionnelle</b> : l\'utilisateur est prêt à acheter. Type de contenu idéal : page produit, landing page.',
+    6: '<b>Commerciale</b> : l\'utilisateur compare avant de décider. Type de contenu idéal : comparatif, article "meilleur X pour Y".',
+    7: 'Les 3 critères d\'un bon mot-clé : <b>Volume</b> (combien de recherches/mois), <b>Difficulté</b> (concurrence), <b>Pertinence</b> (est-ce que ça colle à ton offre ?).',
+    8: '<b>Answer the Public</b> : outil qui visualise les questions réelles des internautes sous forme de bulles. Parfait pour trouver des idées de contenu.',
+    9: 'La Title Tag doit faire <b>60 caractères maximum</b>. Au-delà, Google la coupe dans les résultats.',
+    10: '<b>Une seule balise H1</b> par page — c\'est le titre principal de la page, celui qui dit à Google de quoi elle parle.',
+    11: 'La Title Tag est <b>invisible sur la page elle-même</b>. Elle apparaît dans l\'onglet du navigateur et dans les résultats de recherche Google.',
+    12: 'Landing page efficace : <b>1 message clair</b> (ce que tu offres), <b>1 preuve</b> (avis clients, résultats), <b>1 seul CTA</b> (une seule action demandée).',
+    13: 'C\'est <b>l\'objet de l\'email</b> (subject line) qui détermine si le mail est ouvert ou non. C\'est la première chose que voit l\'utilisateur.',
+    14: 'Les 3 types de contenu SEO : <b>Pages FAQ/Présentation</b> (capturer le trafic informatif), <b>Articles de blog</b> (se positionner sur des sujets), <b>Contenus de preuve</b> (avis, études de cas).',
+    15: 'En 2026, de plus en plus de gens posent leurs questions à <b>ChatGPT, Perplexity ou Gemini</b> au lieu de chercher sur Google. Être cité par ces IA est une nouvelle forme de visibilité qu\'on appelle le <b>GEO</b>.',
+  };
+
+  let html = `<div class="${cls}">
+    <div class="mf-title">${title}</div>
+    <div class="mf-body">${body}</div>
+    <div class="mf-answer">💡 <b>À retenir :</b> ${answers[qNum]}</div>`;
+
+  if (reflect) {
+    html += `<div class="reflect-prompt">
+      <p>🤔 Pourquoi tu penses avoir raté cette question ?</p>
+      <select class="reflect-select">
+        <option value="">— Sélectionne une raison —</option>
+        <option>Je ne connaissais pas du tout ce point</option>
+        <option>Je confondais avec un autre concept</option>
+        <option>Je n'ai pas bien relu la question</option>
+        <option>Je l'avais appris mais j'ai oublié</option>
+        <option>Je n'avais pas compris l'importance de ce point</option>
+      </select>
+    </div>`;
+  }
+
+  html += '</div>';
+  mf.innerHTML = html;
+  mf.classList.add('show');
+}
+
+function showDashboard() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  const mastered = [], growth = [], lucky = [], blindSpots = [], knownGaps = [], gaps = [];
+
+  for (let q in results) {
+    const r = results[q];
+    if (r.correct && r.conf === 'sure') mastered.push(r.topic);
+    else if (r.correct && r.conf === 'maybe') growth.push(r.topic);
+    else if (r.correct && r.conf === 'guess') lucky.push(r.topic);
+    else if (!r.correct && r.conf === 'sure') blindSpots.push(r.topic);
+    else if (!r.correct && r.conf === 'maybe') knownGaps.push(r.topic);
+    else gaps.push(r.topic);
+  }
+
+  const pct = Math.round(scoreCount / TOTAL * 100);
+  document.getElementById('dashScore').textContent = scoreCount + ' / ' + TOTAL + ' (' + pct + '%)';
+
+  let msg = '';
+  if (pct >= 80) msg = 'Excellente maîtrise du SEO/GEO !';
+  else if (pct >= 60) msg = 'Bonne base — quelques points à consolider.';
+  else msg = 'Du travail en perspective — mais tu sais exactement où focaliser !';
+  document.getElementById('dashSub').textContent = msg;
+
+  const allLucky = lucky.length > 0 ? ` · 🍀 ${lucky.length} chanceux` : '';
+  const grid = document.getElementById('dashGrid');
+  grid.innerHTML = `
+    <div class="dash-card dc-mastered">
+      <div class="dc-header"><span class="dc-icon">✅</span><span class="dc-title">Maîtrisé</span></div>
+      <div class="dc-count">${mastered.length}</div>
+      <div class="dc-desc">Tu savais ET tu avais raison${allLucky}</div>
+      <div class="topic-list">${mastered.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#10b981"></div>${t}</div>`).join('') || '<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun pour l\'instant</div>'}</div>
+    </div>
+    <div class="dash-card dc-growth">
+      <div class="dc-header"><span class="dc-icon">📈</span><span class="dc-title">Zone de progression</span></div>
+      <div class="dc-count">${growth.length}</div>
+      <div class="dc-desc">Bonne réponse mais pas sûr·e — à consolider</div>
+      <div class="topic-list">${growth.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#4ade80"></div>${t}</div>`).join('') || '<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun</div>'}</div>
+    </div>
+    <div class="dash-card dc-blind">
+      <div class="dc-header"><span class="dc-icon">🚨</span><span class="dc-title">Angles Morts</span></div>
+      <div class="dc-count">${blindSpots.length}</div>
+      <div class="dc-desc">Tu étais sûr·e mais tu t\'es trompé·e — PRIORITÉ 1</div>
+      <div class="topic-list">${blindSpots.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f97316"></div>${t}</div>`).join('') || '<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun angle mort 🎉</div>'}</div>
+    </div>
+    <div class="dash-card dc-gap">
+      <div class="dc-header"><span class="dc-icon">📝</span><span class="dc-title">Lacunes</span></div>
+      <div class="dc-count">${knownGaps.length + gaps.length}</div>
+      <div class="dc-desc">Tu ne savais pas — points à apprendre</div>
+      <div class="topic-list">${[...knownGaps,...gaps].map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f87171"></div>${t}</div>`).join('') || '<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucune lacune 🔥</div>'}</div>
+    </div>
+  `;
+
+  const plan = document.getElementById('planSteps');
+  let steps = '';
+
+  if (blindSpots.length > 0) {
+    steps += `<div class="plan-step">
+      <div class="plan-num pn-1">1</div>
+      <div class="plan-content"><b>🚨 URGENT — Corrige tes angles morts :</b><br>
+      Tu étais certain·e mais faux·sse sur : <em>${blindSpots.join(', ')}</em>.<br>
+      Relis ces points dans le cours, fais des exemples concrets, explique-les à voix haute.</div>
+    </div>`;
+  }
+
+  const toLearn = [...knownGaps, ...gaps];
+  if (toLearn.length > 0) {
+    steps += `<div class="plan-step">
+      <div class="plan-num pn-2">${blindSpots.length > 0 ? '2' : '1'}</div>
+      <div class="plan-content"><b>📚 Apprends les lacunes identifiées :</b><br>
+      Points à maîtriser : <em>${toLearn.join(', ')}</em>.<br>
+      Focus sur les définitions précises et les exemples concrets.</div>
+    </div>`;
+  }
+
+  if (lucky.length > 0) {
+    steps += `<div class="plan-step">
+      <div class="plan-num pn-2">⚠️</div>
+      <div class="plan-content"><b>🍀 Méfie-toi des coups de chance :</b><br>
+      Tu as eu juste en devinant sur : <em>${lucky.join(', ')}</em>.<br>
+      À l\'examen, la chance ne sera peut-être pas là — revois ces points.</div>
+    </div>`;
+  }
+
+  if (growth.length > 0) {
+    steps += `<div class="plan-step">
+      <div class="plan-num pn-3">${blindSpots.length > 0 || toLearn.length > 0 ? '3' : '1'}</div>
+      <div class="plan-content"><b>📈 Consolide ta zone de progression :</b><br>
+      Bonne réponse mais pas assez sûr·e sur : <em>${growth.join(', ')}</em>.<br>
+      Encore 1-2 révisions et ce sera vraiment maîtrisé.</div>
+    </div>`;
+  }
+
+  if (mastered.length === TOTAL) {
+    steps = `<div class="plan-step"><div class="plan-num pn-3">🏆</div><div class="plan-content"><b>Parfait !</b> Tu maîtrises tout le cours SEO/GEO. Garde ça frais avec une relecture express avant l'exam.</div></div>`;
+  } else if (steps === '') {
+    steps = `<div class="plan-step"><div class="plan-num pn-3">✨</div><div class="plan-content">Continue à t'entraîner — les révisions régulières sont la clé de la mémorisation à long terme.</div></div>`;
+  }
+
+  plan.innerHTML = steps;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function restartQuiz() {
+  scoreCount = 0; answered = 0;
+  Object.keys(confidence).forEach(k => delete confidence[k]);
+  Object.keys(results).forEach(k => delete results[k]);
+  document.getElementById('dashboard').style.display = 'none';
+  document.querySelector('.intro-box').style.display = 'block';
+  document.getElementById('scoreBar').style.display = 'none';
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreDisplay').textContent = '0 / ' + TOTAL;
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressText').textContent = '0 / ' + TOTAL;
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.remove('answered');
+    c.querySelectorAll('.option').forEach(o => {
+      o.classList.remove('correct','wrong','locked','unlocked');
+      o.querySelector('.dot').textContent = '';
+    });
+    c.querySelectorAll('.conf-btn').forEach(b => {
+      b.classList.remove('sel','disabled');
+    });
+    c.querySelectorAll('.options').forEach(o => delete o.dataset.locked);
+    c.querySelectorAll('.meta-feedback').forEach(mf => {
+      mf.classList.remove('show'); mf.innerHTML = '';
+    });
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
