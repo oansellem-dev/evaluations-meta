@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Métacognitif — Statistiques</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #021a0e 0%, #031a10 50%, #041a12 100%);
+  padding: 44px 20px 36px; text-align: center;
+  border-bottom: 3px solid #10b981;
+}
+.hero h1 { font-size: 1.9rem; color: #6ee7b7; margin-bottom: 6px; }
+.hero .sub { color: #94a3b8; font-size: 0.97rem; max-width: 560px; margin: 0 auto 14px; line-height: 1.6; }
+.badge-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; }
+
+.intro-box { max-width: 820px; margin: 28px auto 0; padding: 0 16px; }
+.meta-explain { background: #021a0e; border: 1px solid #065f46; border-radius: 14px; padding: 24px 28px; }
+.meta-explain h2 { color: #34d399; margin-bottom: 14px; font-size: 1.1rem; }
+.meta-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+@media(max-width:600px){ .meta-grid { grid-template-columns: 1fr; } }
+.meta-cell { border-radius: 10px; padding: 14px; text-align: center; }
+.mc-green { background: #052e16; border: 1px solid #10b981; }
+.mc-yellow { background: #1c1500; border: 1px solid #f59e0b; }
+.mc-red { background: #1c0a0a; border: 1px solid #ef4444; }
+.mc-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.mc-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+.mc-green .mc-label { color: #10b981; }
+.mc-yellow .mc-label { color: #f59e0b; }
+.mc-red .mc-label { color: #ef4444; }
+.mc-desc { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
+
+.start-btn {
+  display: block; margin: 20px auto 0;
+  background: linear-gradient(135deg, #065f46, #10b981);
+  color: white; border: none; padding: 14px 40px;
+  border-radius: 12px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+.score-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #0d1117; border-bottom: 2px solid #052e16;
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+}
+.score-label { color: #94a3b8; font-size: 0.85rem; }
+.score-value { color: #34d399; font-size: 1.2rem; font-weight: 700; min-width: 55px; }
+.progress-track { flex: 1; height: 6px; background: #1f2937; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 4px; transition: width .4s; width: 0%; }
+
+.container { max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; display: none; }
+
+.section-title {
+  text-align: center; font-size: 1.2rem; font-weight: 700;
+  color: #34d399; margin: 32px 0 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title::before, .section-title::after {
+  content: ''; flex: 1; height: 2px;
+  background: linear-gradient(90deg, transparent, #10b981, transparent);
+}
+
+.card { background: #111827; border: 1px solid #1e293b; border-radius: 14px; padding: 22px; margin-bottom: 22px; transition: border-color .3s; }
+.card.answered { border-color: #065f46; }
+
+.q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.q-num {
+  background: linear-gradient(135deg, #065f46, #10b981);
+  color: white; font-weight: 700; font-size: 0.8rem;
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.q-text { font-size: 0.96rem; line-height: 1.65; color: #e2e8f0; font-weight: 500; }
+
+.tag { display: inline-block; font-size: 0.67rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-bottom: 5px; letter-spacing: 0.05em; text-transform: uppercase; }
+.tag-desc { background: #052e16; color: #34d399; }
+.tag-reg { background: #0c2847; color: #38bdf8; }
+.tag-proba { background: #1e1b4b; color: #a78bfa; }
+
+.step-label { font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.conf-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.conf-btn { flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; font-size: 0.82rem; font-weight: 600; transition: all .2s; text-align: center; background: #0f172a; }
+.conf-btn:hover { transform: scale(1.03); }
+.cb-sure { border-color: #1a3a25; color: #34d399; }
+.cb-sure:hover, .cb-sure.sel { background: #052e16; border-color: #10b981; }
+.cb-maybe { border-color: #2a1f05; color: #fbbf24; }
+.cb-maybe:hover, .cb-maybe.sel { background: #1c1500; border-color: #f59e0b; }
+.cb-guess { border-color: #2a0f0f; color: #f87171; }
+.cb-guess:hover, .cb-guess.sel { background: #1c0a0a; border-color: #ef4444; }
+.conf-btn.sel { cursor: default; }
+.conf-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { background: #0f172a; border: 2px solid #1e293b; border-radius: 10px; padding: 11px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all .2s; font-size: 0.91rem; pointer-events: none; }
+.option.unlocked { pointer-events: auto; }
+.option:hover:not(.locked) { border-color: #10b981; background: #0a1f15; transform: translateX(3px); }
+.dot { width: 24px; height: 24px; border-radius: 50%; background: #1f2937; border: 2px solid #374151; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; transition: all .2s; }
+.option.correct { border-color: #10b981; background: #052e16; }
+.option.correct .dot { background: #10b981; border-color: #10b981; color: white; font-weight: 700; }
+.option.wrong { border-color: #ef4444; background: #1c0a0a; }
+.option.wrong .dot { background: #ef4444; border-color: #ef4444; color: white; }
+.option.locked { cursor: default; pointer-events: none; }
+
+.meta-feedback { display: none; margin-top: 14px; border-radius: 11px; padding: 16px 18px; font-size: 0.86rem; line-height: 1.7; }
+.meta-feedback.show { display: block; }
+.mf-mastered { background: #052e16; border: 2px solid #10b981; }
+.mf-mastered .mf-title { color: #10b981; font-weight: 700; font-size: 0.95rem; }
+.mf-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.mf-growth .mf-title { color: #4ade80; font-weight: 700; font-size: 0.95rem; }
+.mf-lucky { background: #1a1a2e; border: 2px solid #60a5fa; }
+.mf-lucky .mf-title { color: #60a5fa; font-weight: 700; font-size: 0.95rem; }
+.mf-blind { background: #2a0a00; border: 2px solid #f97316; }
+.mf-blind .mf-title { color: #f97316; font-weight: 700; font-size: 0.95rem; }
+.mf-known-gap { background: #1c1000; border: 2px solid #fbbf24; }
+.mf-known-gap .mf-title { color: #fbbf24; font-weight: 700; font-size: 0.95rem; }
+.mf-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.mf-gap .mf-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
+.mf-body { color: #94a3b8; margin-top: 4px; }
+
+.explain-box { margin-top: 14px; background: #0d1117; border: 1px solid #1e293b; border-radius: 10px; padding: 16px 18px; }
+.explain-box .ex-title { font-size: 0.8rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.explain-section { margin-bottom: 12px; }
+.explain-section:last-child { margin-bottom: 0; }
+.explain-section .es-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.explain-section .es-content { font-size: 0.87rem; color: #cbd5e1; line-height: 1.7; }
+.explain-section .es-content b { color: #e2e8f0; }
+.formula-pill { display: inline-block; background: #052e16; border: 1px solid #065f46; color: #6ee7b7; font-weight: 700; padding: 6px 14px; border-radius: 8px; font-size: 0.92rem; margin: 6px 0; font-family: monospace; }
+.example-block { background: #111827; border: 1px solid #065f46; border-radius: 8px; padding: 12px 14px; margin-top: 8px; font-size: 0.85rem; }
+.example-block .ex-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+.example-block .ex-row .ex-k { color: #64748b; }
+.example-block .ex-row .ex-v { color: #e2e8f0; font-weight: 600; }
+.example-block .ex-row.ex-result { border-top: 1px solid #1e293b; margin-top: 6px; padding-top: 8px; }
+.example-block .ex-row.ex-result .ex-k { color: #34d399; font-weight: 700; }
+.example-block .ex-row.ex-result .ex-v { color: #6ee7b7; font-size: 1rem; }
+.defs-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.def-chip { background: #1f2937; border: 1px solid #374151; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; color: #94a3b8; }
+.def-chip b { color: #e2e8f0; }
+.why-box { background: #0a1a0e; border-left: 3px solid #10b981; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 8px; font-size: 0.84rem; color: #94a3b8; line-height: 1.6; }
+.why-box b { color: #6ee7b7; }
+
+.reflect-prompt { margin-top: 12px; padding: 10px 14px; background: #0d1117; border: 1px dashed #065f46; border-radius: 8px; }
+.reflect-prompt p { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+.reflect-select { width: 100%; background: #1f2937; border: 1px solid #374151; color: #cbd5e1; padding: 7px 10px; border-radius: 7px; font-size: 0.82rem; cursor: pointer; }
+
+.dashboard { display: none; max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; }
+.dash-hero { background: linear-gradient(135deg, #021a0e, #031a10); border: 2px solid #10b981; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 28px; }
+.dash-hero h2 { color: #6ee7b7; font-size: 1.5rem; margin-bottom: 6px; }
+.dash-score { font-size: 3.5rem; font-weight: 900; color: #10b981; margin: 8px 0; }
+.dash-sub { color: #64748b; font-size: 0.9rem; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+@media(max-width:600px){ .dash-grid { grid-template-columns: 1fr; } }
+.dash-card { border-radius: 13px; padding: 18px; }
+.dc-mastered { background: #052e16; border: 2px solid #10b981; }
+.dc-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.dc-blind { background: #2a0a00; border: 2px solid #f97316; }
+.dc-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.dc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dc-icon { font-size: 1.4rem; }
+.dc-title { font-size: 0.95rem; font-weight: 700; }
+.dc-mastered .dc-title { color: #10b981; }
+.dc-growth .dc-title { color: #4ade80; }
+.dc-blind .dc-title { color: #f97316; }
+.dc-gap .dc-title { color: #f87171; }
+.dc-count { font-size: 2rem; font-weight: 900; margin-bottom: 6px; }
+.dc-mastered .dc-count { color: #10b981; }
+.dc-growth .dc-count { color: #4ade80; }
+.dc-blind .dc-count { color: #f97316; }
+.dc-gap .dc-count { color: #f87171; }
+.dc-desc { font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+.topic-list { margin-top: 8px; }
+.topic-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin: 4px 0; background: rgba(0,0,0,0.2); border-radius: 7px; font-size: 0.8rem; color: #cbd5e1; }
+.topic-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.plan-box { background: #021a0e; border: 2px solid #065f46; border-radius: 14px; padding: 22px; margin-top: 24px; }
+.plan-box h3 { color: #34d399; margin-bottom: 16px; font-size: 1.05rem; }
+.plan-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #052e16; }
+.plan-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.plan-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+.pn-1 { background: #f97316; color: #0a0a0a; }
+.pn-2 { background: #fbbf24; color: #0a0a0a; }
+.pn-3 { background: #4ade80; color: #0a0a0a; }
+.plan-content { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+.plan-content b { color: #e2e8f0; }
+.restart-btn { display: block; margin: 24px auto 0; background: linear-gradient(135deg, #065f46, #047857); color: #d1fae5; border: 1px solid #10b981; padding: 12px 32px; border-radius: 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
+.restart-btn:hover { background: linear-gradient(135deg, #047857, #10b981); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🧠 Diagnostic Métacognitif — Statistiques</h1>
+  <p class="sub">Indique ta confiance <strong>avant</strong> de répondre. Chaque explication te dit <em>pourquoi</em> et <em>comment</em> — avec des exemples concrets.</p>
+  <div class="badge-row">
+    <span class="badge" style="background:#052e16;color:#34d399;">📊 Statistiques descriptives</span>
+    <span class="badge" style="background:#0c2847;color:#38bdf8;">📈 Régression linéaire</span>
+    <span class="badge" style="background:#1e1b4b;color:#a78bfa;">🎲 Probabilités</span>
+    <span class="badge" style="background:#1e2433;color:#94a3b8;">15 questions · Toutes notions</span>
+  </div>
+</div>
+
+<div class="intro-box">
+  <div class="meta-explain">
+    <h2>🎯 Comment ça marche ?</h2>
+    <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;">Chaque question a <strong style="color:#e2e8f0;">2 étapes</strong>. D'abord ta confiance, ensuite ta réponse. Après : explication complète avec le <em>pourquoi</em>, le <em>comment</em>, et un exemple chiffré.</p>
+    <div class="meta-grid">
+      <div class="meta-cell mc-green"><div class="mc-icon">🟢</div><div class="mc-label">Je suis sûr·e</div><div class="mc-desc">Tu maîtrises vraiment ou tu crois maîtriser ?</div></div>
+      <div class="meta-cell mc-yellow"><div class="mc-icon">🟡</div><div class="mc-label">Je pense…</div><div class="mc-desc">T'as une idée mais pas sûr·e</div></div>
+      <div class="meta-cell mc-red"><div class="mc-icon">🔴</div><div class="mc-label">Je devine</div><div class="mc-desc">T'as vraiment pas la réponse</div></div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">🚀 Commencer le diagnostic</button>
+  </div>
+</div>
+
+<div class="score-bar" id="scoreBar" style="display:none;">
+  <span class="score-label">Score</span>
+  <span class="score-value" id="scoreDisplay">0 / 15</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span style="color:#64748b;font-size:0.8rem;" id="progressText">0 / 15</span>
+</div>
+
+<div class="container" id="quizContainer">
+
+  <div class="section-title">📊 Statistiques Descriptives</div>
+
+  <!-- Q1 -->
+  <div class="card" id="card-1">
+    <div class="q-header"><div class="q-num">1</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">Quelle est la formule de la <strong>moyenne pondérée</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(1,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(1,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(1,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="1" data-topic="Moyenne pondérée X̄ = Σnᵢxᵢ / N">
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>X̄ = (x₁ + x₂ + … + xₙ) / n  — somme divisée par le nombre de valeurs</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>X̄ = Σnᵢxᵢ²  — somme des produits au carré</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>X̄ = Σnᵢxᵢ / N  — somme des (effectif × valeur), divisée par l'effectif total</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>X̄ = (Max + Min) / 2</div>
+    </div>
+    <div class="meta-feedback" id="mf-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="card-2">
+    <div class="q-header"><div class="q-num">2</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">Quelle est la formule de la <strong>variance pondérée V(x)</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(2,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(2,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(2,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="2" data-topic="Variance V(x) = (1/N) × Σnᵢ(xᵢ − X̄)²">
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>V(x) = Σ(xᵢ − X̄) / N</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>V(x) = (1/N) × Σnᵢ(xᵢ − X̄)²</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>V(x) = Σnᵢxᵢ² − X̄</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>V(x) = (Max − Min)² / N</div>
+    </div>
+    <div class="meta-feedback" id="mf-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="card-3">
+    <div class="q-header"><div class="q-num">3</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">Si l'écart-type <strong>σ = 0</strong>, qu'est-ce que cela signifie ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(3,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(3,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(3,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="3" data-topic="σ = 0 → toutes les valeurs sont identiques">
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Il n'y a aucune donnée dans la série</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>La moyenne est égale à zéro</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>La série a une très grande dispersion</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Toutes les valeurs sont identiques — aucune dispersion</div>
+    </div>
+    <div class="meta-feedback" id="mf-3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card" id="card-4">
+    <div class="q-header"><div class="q-num">4</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">À quoi sert le <strong>Coefficient de Variation (CV)</strong> et quelle est sa formule ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(4,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(4,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(4,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="4" data-topic="CV = (σ / X̄) × 100 — comparer la dispersion de deux séries">
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>CV = σ + X̄ — mesure la somme de la dispersion et de la moyenne</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>CV = X̄ / σ × 100 — mesure combien de fois la moyenne contient l'écart-type</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>CV = (σ / X̄) × 100 — dispersion en % de la moyenne, pour comparer deux séries d'unités différentes</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>CV = V(x) / N — variance normalisée</div>
+    </div>
+    <div class="meta-feedback" id="mf-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="card-5">
+    <div class="q-header"><div class="q-num">5</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">La <strong>médiane</strong> est dite "robuste" aux valeurs extrêmes. Pourquoi ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(5,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(5,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(5,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="5" data-topic="Médiane robuste : valeur centrale, non influencée par les outliers">
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Parce qu'elle est toujours égale à la moyenne dans une distribution normale</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Parce qu'elle est la valeur centrale et n'est pas "tirée" par les extrêmes, contrairement à la moyenne</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Parce qu'elle est calculée à partir de la variance, qui ignore les outliers</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Parce qu'elle est toujours supérieure à la moyenne</div>
+    </div>
+    <div class="meta-feedback" id="mf-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="card-6">
+    <div class="q-header"><div class="q-num">6</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">La <strong>moyenne est inférieure à la médiane</strong>. Que peut-on conclure sur la forme de la distribution ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(6,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(6,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(6,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="6" data-topic="Moyenne < Médiane → distribution asymétrique à gauche">
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>La distribution est symétrique (en cloche)</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>La distribution est asymétrique à droite (tirée par des valeurs élevées)</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>La distribution est asymétrique à gauche (tirée par des valeurs très basses)</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>On ne peut rien conclure</div>
+    </div>
+    <div class="meta-feedback" id="mf-6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="card" id="card-7">
+    <div class="q-header"><div class="q-num">7</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">Comment calcule-t-on l'<strong>IQR (Interquartile Range)</strong> et à quoi sert-il ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(7,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(7,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(7,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="7" data-topic="IQR = Q3 − Q1 — dispersion des 50% centraux">
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>IQR = Q3 − Q1 — mesure la dispersion des 50% centraux de la série</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>IQR = Q1 + Q3 — somme des deux quartiles</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>IQR = (Q3 − Q1) / 2 — demi-amplitude</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>IQR = Max − Min — amplitude totale</div>
+    </div>
+    <div class="meta-feedback" id="mf-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="card-8">
+    <div class="q-header"><div class="q-num">8</div><div>
+      <span class="tag tag-desc">Descriptive</span>
+      <div class="q-text">Avec Q1 = 10, Q3 = 20 (IQR = 10), à partir de quelle valeur une donnée est-elle un <strong>outlier au-dessus</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(8,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(8,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(8,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="8" data-topic="Outlier si > Q3 + 1,5 × IQR → ici > 35">
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Au-dessus de 25 (Q3 + IQR/2)</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Au-dessus de 30 (Q3 + IQR)</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Au-dessus de 40 (Q3 + 2×IQR)</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Au-dessus de 35 (Q3 + 1,5×IQR)</div>
+    </div>
+    <div class="meta-feedback" id="mf-8"></div>
+  </div>
+
+  <div class="section-title">📈 Régression Linéaire</div>
+
+  <!-- Q9 -->
+  <div class="card" id="card-9">
+    <div class="q-header"><div class="q-num">9</div><div>
+      <span class="tag tag-reg">Régression</span>
+      <div class="q-text">Formule du coefficient directeur <strong>β₁</strong> (la pente) de la droite de régression ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(9,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(9,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(9,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="9" data-topic="β₁ = Cov(X,Y) / V(X)">
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>β₁ = V(X) / Cov(X,Y)</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>β₁ = Cov(X,Y) / V(X)</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>β₁ = Cov(X,Y) × V(X)</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>β₁ = Ȳ − X̄</div>
+    </div>
+    <div class="meta-feedback" id="mf-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="card-10">
+    <div class="q-header"><div class="q-num">10</div><div>
+      <span class="tag tag-reg">Régression</span>
+      <div class="q-text">Comment calcule-t-on l'<strong>ordonnée à l'origine β₀</strong> une fois que β₁ est connu ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(10,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(10,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(10,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="10" data-topic="β₀ = Ȳ − β₁ × X̄">
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>β₀ = Ȳ + β₁ × X̄</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>β₀ = X̄ − β₁ × Ȳ</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>β₀ = Ȳ − β₁ × X̄</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>β₀ = β₁ / Ȳ</div>
+    </div>
+    <div class="meta-feedback" id="mf-10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="card-11">
+    <div class="q-header"><div class="q-num">11</div><div>
+      <span class="tag tag-reg">Régression</span>
+      <div class="q-text">Le coefficient de corrélation <strong>r = −0,92</strong>. Que peut-on conclure ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(11,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(11,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(11,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="11" data-topic="r = −0,92 → forte liaison négative entre X et Y">
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Faible liaison positive entre X et Y</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Forte liaison positive entre X et Y</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Aucune liaison entre X et Y</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>Forte liaison négative : quand X augmente, Y diminue fortement</div>
+    </div>
+    <div class="meta-feedback" id="mf-11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="card-12">
+    <div class="q-header"><div class="q-num">12</div><div>
+      <span class="tag tag-reg">Régression</span>
+      <div class="q-text"><strong>R² = 0,81</strong>. Quelle est l'interprétation correcte ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(12,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(12,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(12,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="12" data-topic="R² = 0,81 → le modèle explique 81% de la variation de Y">
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>La corrélation entre X et Y est de 81%</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Le modèle explique 81% de la variation de Y grâce à X</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Il y a 81% de chances que la prédiction soit exacte</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>La pente de la droite est de 0,81</div>
+    </div>
+    <div class="meta-feedback" id="mf-12"></div>
+  </div>
+
+  <div class="section-title">🎲 Probabilités</div>
+
+  <!-- Q13 -->
+  <div class="card" id="card-13">
+    <div class="q-header"><div class="q-num">13</div><div>
+      <span class="tag tag-proba">Probabilités</span>
+      <div class="q-text">Quelle est la formule de la <strong>probabilité conditionnelle P(B|A)</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(13,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(13,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(13,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="13" data-topic="P(B|A) = P(A∩B) / P(A)">
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>P(B|A) = P(A) × P(B)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>P(B|A) = P(A∩B) / P(B)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>P(B|A) = P(A∩B) / P(A)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>P(B|A) = P(A) + P(B) − P(A∩B)</div>
+    </div>
+    <div class="meta-feedback" id="mf-13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="card" id="card-14">
+    <div class="q-header"><div class="q-num">14</div><div>
+      <span class="tag tag-proba">Probabilités</span>
+      <div class="q-text">P(A) = 0,4 et P(B) = 0,3. Si A et B sont <strong>indépendants</strong>, quelle est P(A∩B) ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(14,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(14,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(14,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="14" data-topic="Indépendance : P(A∩B) = P(A) × P(B) = 0,12">
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>0,12 — car si indépendants, P(A∩B) = P(A) × P(B)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>0,70 — car P(A∩B) = P(A) + P(B)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>0,10 — impossible à calculer sans plus d'info</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Impossible à calculer sans plus d'informations</div>
+    </div>
+    <div class="meta-feedback" id="mf-14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="card-15">
+    <div class="q-header"><div class="q-num">15</div><div>
+      <span class="tag tag-proba">Probabilités</span>
+      <div class="q-text">P(A) = 0,5 ; P(B) = 0,4 ; P(A∩B) = 0,2. Quelle est <strong>P(A∪B)</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(15,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(15,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(15,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="15" data-topic="P(A∪B) = P(A) + P(B) − P(A∩B) = 0,70">
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>0,90 — P(A) + P(B)</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>0,20 — juste P(A∩B)</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>0,70 — P(A∪B) = P(A) + P(B) − P(A∩B)</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>1,10 — P(A) + P(B) + P(A∩B)</div>
+    </div>
+    <div class="meta-feedback" id="mf-15"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:32px;">
+    <button onclick="showDashboard()" style="background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;padding:16px 44px;border-radius:13px;font-size:1.05rem;font-weight:700;cursor:pointer;">
+      📊 Voir mon diagnostic complet
+    </button>
+  </div>
+</div>
+
+<div class="dashboard" id="dashboard">
+  <div class="dash-hero">
+    <h2>🧠 Ton Diagnostic Statistiques</h2>
+    <div class="dash-score" id="dashScore">—</div>
+    <div class="dash-sub" id="dashSub"></div>
+  </div>
+  <div class="dash-grid" id="dashGrid"></div>
+  <div class="plan-box"><h3>🗺️ Ton plan de révision personnalisé</h3><div id="planSteps"></div></div>
+  <button class="restart-btn" onclick="restartQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+const TOTAL = 15;
+let scoreCount = 0, answered = 0;
+const confidence = {}, results = {};
+
+const explanations = {
+  1: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Moyenne simple vs Moyenne pondérée</div>
+      <div class="es-content">La <b>moyenne simple</b> additionne toutes les valeurs et divise par leur nombre. Ça marche quand tu as une seule observation par valeur.<br><br>
+      La <b>moyenne pondérée</b> c'est quand certaines valeurs "comptent plus" parce qu'elles concernent plus de gens (ou ont un poids plus élevé). Par exemple : si 30 employés gagnent 2 500€ et 2 employés gagnent 10 000€, la moyenne simple donnerait un résultat faux — les 2 riches pèseraient autant que les 30 autres.</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">X̄ = Σnᵢxᵢ / N</div>
+      <div class="defs-row" style="margin-top:8px">
+        <div class="def-chip"><b>nᵢ</b> = effectif du groupe i (combien de personnes)</div>
+        <div class="def-chip"><b>xᵢ</b> = valeur du groupe i (ex: salaire)</div>
+        <div class="def-chip"><b>N</b> = effectif total (somme de tous les nᵢ)</div>
+      </div></div></div>`,
+    exemple: { titre: "👥 Exemple — Salaires dans une entreprise",
+      lignes: [
+        { k: "10 employés à 3 000€", v: "10 × 3 000 = 30 000" },
+        { k: "5 employés à 5 000€", v: "5 × 5 000 = 25 000" },
+        { k: "15 employés à 2 500€", v: "15 × 2 500 = 37 500" },
+        { k: "N total", v: "30 employés" },
+        { k: "X̄ = (30 000 + 25 000 + 37 500) / 30", v: "3 083,33 €", result: true }
+      ], conclusion: "→ Le salaire moyen pondéré est 3 083€. La moyenne simple des 3 valeurs (3 000 + 5 000 + 2 500)/3 = 3 500€ aurait été fausse." }
+  },
+  2: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 C'est quoi la variance ?</div>
+      <div class="es-content">La variance mesure à quel point les valeurs sont <b>dispersées autour de la moyenne</b>. Plus la variance est grande, plus les valeurs sont éparpillées. Une variance de 0 = tout le monde a exactement la même valeur.</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">V(x) = (1/N) × Σnᵢ(xᵢ − X̄)²</div></div>
+      <div class="why-box">💡 <b>Pourquoi élever au carré ?</b> Si on faisait juste (xᵢ − X̄), les valeurs positives et négatives s'annuleraient et on obtiendrait toujours 0. En élevant au carré, on s'assure que tous les écarts contribuent positivement. L'inconvénient : l'unité est au carré (ex: €²). C'est pour ça qu'on prend souvent la racine carrée → l'écart-type σ.</div></div>
+      <div class="explain-section"><div class="es-label">🔗 Écart-type σ</div>
+      <div class="es-content"><div class="formula-pill">σ = √V(x)</div>
+      L'écart-type est dans la même unité que les données (€, kg, cm…). C'est lui qu'on utilise pour interpréter la dispersion en pratique.</div></div>`,
+    exemple: { titre: "🔢 Exemple simple",
+      lignes: [
+        { k: "Valeurs : 2, 4, 6 (moyenne X̄ = 4)", v: "" },
+        { k: "(2−4)² × 1", v: "4" },
+        { k: "(4−4)² × 1", v: "0" },
+        { k: "(6−4)² × 1", v: "4" },
+        { k: "V(x) = (4 + 0 + 4) / 3", v: "2,67", result: true }
+      ], conclusion: "→ σ = √2,67 ≈ 1,63. Les valeurs s'éloignent en moyenne de 1,63 points de la moyenne." }
+  },
+  3: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 L'écart-type σ mesure la dispersion</div>
+      <div class="es-content"><b>σ (sigma)</b> = écart-type = la racine carrée de la variance. Il te dit de combien les valeurs s'écartent en moyenne de la moyenne.<br><br>
+      <b>σ grand</b> → valeurs très dispersées (certains très haut, d'autres très bas).<br>
+      <b>σ petit</b> → valeurs très regroupées autour de la moyenne.<br>
+      <b>σ = 0</b> → cas extrême : <em>toutes</em> les valeurs sont identiques, donc personne ne s'écarte de la moyenne.</div></div>
+      <div class="why-box">💡 <b>Exemple concret :</b> Une classe où tout le monde a exactement 12/20 → σ = 0. Une classe où les notes vont de 0 à 20 → σ très grand.</div>`,
+    exemple: null
+  },
+  4: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Le problème que résout le CV</div>
+      <div class="es-content">Imagine que tu veuilles comparer la dispersion des salaires (en €) avec la dispersion des tailles (en cm). L'écart-type ne se compare pas directement car les unités sont différentes.<br><br>
+      Le <b>CV (Coefficient de Variation)</b> résout ce problème en exprimant l'écart-type <em>en pourcentage de la moyenne</em>. Résultat : une mesure sans unité, comparable entre séries.</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">CV = (σ / X̄) × 100</div></div>
+      <div class="why-box">💡 <b>Règle pratique :</b> CV < 15% → faible dispersion (série homogène). CV > 30% → forte dispersion (série hétérogène). Mais ce sont des repères, pas des règles absolues.</div>`,
+    exemple: { titre: "📊 Exemple — Comparer deux équipes commerciales",
+      lignes: [
+        { k: "Équipe A : X̄ = 10 000€, σ = 2 000€", v: "CV = 20%" },
+        { k: "Équipe B : X̄ = 50 000€, σ = 5 000€", v: "CV = 10%", result: true }
+      ], conclusion: "→ L'équipe B a un σ plus grand EN VALEUR ABSOLUE, mais en réalité elle est plus homogène (CV=10% vs 20%). Le CV permet cette comparaison." }
+  },
+  5: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Médiane vs Moyenne</div>
+      <div class="es-content">La <b>médiane</b> est la valeur qui sépare la série en deux moitiés égales : 50% des valeurs sont en dessous, 50% au-dessus.<br><br>
+      La <b>moyenne</b> est sensible aux valeurs extrêmes — une seule valeur aberrante peut la "tirer" fortement. La médiane, elle, ne bouge presque pas : peu importe si la valeur la plus haute est 100 ou 100 000, la médiane reste la même.</div></div>
+      <div class="why-box">💡 <b>Exemple classique :</b> Imagine 9 personnes qui gagnent 2 000€/mois. Bill Gates entre dans la pièce. Maintenant la <em>moyenne</em> explose à des millions. La <em>médiane</em> ? Elle reste à 2 000€. C'est pour ça que pour les salaires ou les prix immobiliers, on préfère souvent parler de médiane.</div>`,
+    exemple: null
+  },
+  6: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Asymétrie (Skewness) — comment lire la forme d'une distribution</div>
+      <div class="es-content">La relation entre moyenne et médiane te dit dans quel sens la distribution est "tirée" :</div></div>
+      <div class="explain-section">
+      <div class="example-block" style="font-size:0.84rem;">
+        <div class="ex-row"><span class="ex-k">Moyenne = Médiane</span><span class="ex-v">↔ Distribution symétrique (en cloche)</span></div>
+        <div class="ex-row" style="margin-top:6px"><span class="ex-k">Moyenne > Médiane</span><span class="ex-v">→ Asymétrie à droite (queue à droite)</span></div>
+        <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>Ex: les revenus — la plupart sont modestes mais quelques milliardaires tirent la moyenne vers le haut</span></div>
+        <div class="ex-row" style="margin-top:6px"><span class="ex-k">Moyenne &lt; Médiane</span><span class="ex-v">→ Asymétrie à gauche (queue à gauche)</span></div>
+        <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>Ex: notes d'un exam facile — la plupart ont de bonnes notes mais quelques-uns ont très mal</span></div>
+      </div></div>
+      <div class="why-box">💡 <b>Moyen mémo :</b> la moyenne est "tirée" vers la queue. Si la queue est à droite → moyenne à droite → moyenne > médiane.</div>`,
+    exemple: null
+  },
+  7: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Les quartiles — diviser la série en 4</div>
+      <div class="es-content"><b>Q1 (1er quartile)</b> = 25% des valeurs sont en dessous.<br>
+      <b>Q2 (médiane)</b> = 50% en dessous.<br>
+      <b>Q3 (3e quartile)</b> = 75% des valeurs sont en dessous.</div></div>
+      <div class="explain-section"><div class="es-label">📐 L'IQR</div>
+      <div class="es-content"><div class="formula-pill">IQR = Q3 − Q1</div>
+      L'IQR représente <b>l'étendue des 50% centraux</b> (les valeurs du milieu, sans les extrêmes). C'est une mesure de dispersion <em>robuste</em> — les valeurs aberrantes ne l'influencent pas.</div></div>`,
+    exemple: { titre: "📊 Exemple",
+      lignes: [
+        { k: "Série triée : 2, 4, 6, 8, 10, 12, 14, 16", v: "" },
+        { k: "Q1 (25e percentile)", v: "5" },
+        { k: "Q3 (75e percentile)", v: "13" },
+        { k: "IQR = Q3 − Q1 = 13 − 5", v: "8", result: true }
+      ], conclusion: "→ Les 50% centraux des données sont dans un intervalle de 8 unités." }
+  },
+  8: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 La règle du 1,5 × IQR</div>
+      <div class="es-content">Une valeur est considérée comme <b>aberrante (outlier)</b> si elle dépasse les "barrières" suivantes :<br><br>
+      <b>Barrière haute :</b> Q3 + 1,5 × IQR<br>
+      <b>Barrière basse :</b> Q1 − 1,5 × IQR<br><br>
+      Pourquoi 1,5 ? C'est une convention statistique (due à John Tukey) qui capture environ 99,3% des données dans une distribution normale. Retiens juste le 1,5.</div></div>`,
+    exemple: { titre: "🔢 Calcul de cette question",
+      lignes: [
+        { k: "Q1", v: "10" },
+        { k: "Q3", v: "20" },
+        { k: "IQR = Q3 − Q1", v: "10" },
+        { k: "Barrière haute = Q3 + 1,5 × IQR = 20 + 15", v: "35" },
+        { k: "Barrière basse = Q1 − 1,5 × IQR = 10 − 15", v: "−5" },
+        { k: "Outlier si > 35 ou < −5", v: "✓", result: true }
+      ], conclusion: "→ Une valeur de 40 serait un outlier (> 35). Une valeur de 0 serait normale (entre −5 et 35)." }
+  },
+  9: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 La régression linéaire — trouver la droite qui résume la relation X↔Y</div>
+      <div class="es-content">La droite de régression a pour équation : <b>ŷ = β₀ + β₁ × x</b><br><br>
+      <b>β₁</b> = la pente = "de combien Y augmente quand X augmente de 1".<br>
+      <b>β₀</b> = l'ordonnée à l'origine = "valeur de Y quand X = 0".</div></div>
+      <div class="explain-section"><div class="es-label">📐 Formule de β₁</div>
+      <div class="es-content"><div class="formula-pill">β₁ = Cov(X,Y) / V(X)</div>
+      <div class="defs-row" style="margin-top:8px">
+        <div class="def-chip"><b>Cov(X,Y)</b> = covariance = mesure si X et Y varient dans le même sens</div>
+        <div class="def-chip"><b>V(X)</b> = variance de X = mesure comment X est dispersé</div>
+      </div></div>
+      <div class="why-box" style="margin-top:8px">💡 <b>Intuition :</b> La covariance dit "à quel point X et Y bougent ensemble". On divise par V(X) pour "normaliser" par rapport à la dispersion de X. Si X est très dispersé mais X et Y bougent peu ensemble, la pente sera faible.</div></div>`,
+    exemple: { titre: "📊 Exemple — Pub vs Ventes",
+      lignes: [
+        { k: "Cov(X,Y) = 120", v: "(pub et ventes bougent ensemble)" },
+        { k: "V(X) = 40", v: "(dispersion du budget pub)" },
+        { k: "β₁ = 120 / 40", v: "3", result: true }
+      ], conclusion: "→ β₁ = 3 signifie : quand le budget pub augmente de 1 000€, les ventes augmentent en moyenne de 3 000€." }
+  },
+  10: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 β₀ — l'ordonnée à l'origine</div>
+      <div class="es-content">Une fois β₁ calculé, on sait que la droite de régression passe <b>obligatoirement</b> par le point (X̄, Ȳ) — les deux moyennes. On utilise ça pour trouver β₀.</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">β₀ = Ȳ − β₁ × X̄</div></div>
+      <div class="why-box">💡 <b>D'où vient cette formule ?</b> La droite passe par (X̄, Ȳ) donc Ȳ = β₀ + β₁ × X̄. On isole β₀ : β₀ = Ȳ − β₁ × X̄. Simple !</div>`,
+    exemple: { titre: "🔢 Exemple — Suite du cas Pub vs Ventes",
+      lignes: [
+        { k: "β₁ calculé", v: "3" },
+        { k: "X̄ (budget pub moyen)", v: "5 000 €" },
+        { k: "Ȳ (ventes moyennes)", v: "20 000 €" },
+        { k: "β₀ = 20 000 − 3 × 5 000", v: "5 000 €", result: true }
+      ], conclusion: "→ Droite : ŷ = 5 000 + 3x. Même avec 0€ de pub, il y aurait 5 000€ de ventes de base." }
+  },
+  11: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Le coefficient de corrélation r</div>
+      <div class="es-content">r mesure <b>la force et le sens</b> de la liaison linéaire entre X et Y. Il est toujours entre −1 et +1.</div></div>
+      <div class="explain-section">
+      <div class="example-block" style="font-size:0.84rem;">
+        <div class="ex-row"><span class="ex-k">r proche de +1</span><span class="ex-v">Forte liaison positive (X↑ → Y↑)</span></div>
+        <div class="ex-row"><span class="ex-k">r proche de −1</span><span class="ex-v">Forte liaison négative (X↑ → Y↓)</span></div>
+        <div class="ex-row"><span class="ex-k">r proche de 0</span><span class="ex-v">Pas de liaison linéaire</span></div>
+        <div class="ex-row ex-result"><span class="ex-k">r = −0,92</span><span class="ex-v">Très forte liaison NÉGATIVE</span></div>
+      </div></div>
+      <div class="why-box" style="margin-top:8px">💡 <b>Exemples :</b> r entre température et ventes de glaces ≈ +0,9 (forte positive). r entre prix d'une voiture et âge ≈ −0,8 (forte négative — plus c'est vieux, moins c'est cher).</div>`,
+    exemple: null
+  },
+  12: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 R² — le coefficient de détermination</div>
+      <div class="es-content"><b>R² = r²</b> (c'est juste le carré de r). Il est toujours entre 0 et 1.<br><br>
+      Il répond à la question : <em>"Quelle part de la variation de Y est expliquée par X dans mon modèle ?"</em></div></div>
+      <div class="explain-section">
+      <div class="example-block" style="font-size:0.84rem;">
+        <div class="ex-row"><span class="ex-k">R² = 1,00</span><span class="ex-v">Modèle parfait (100% expliqué)</span></div>
+        <div class="ex-row"><span class="ex-k">R² = 0,81</span><span class="ex-v">81% de la variation de Y est expliquée par X ✓</span></div>
+        <div class="ex-row"><span class="ex-k">R² = 0,40</span><span class="ex-v">Modèle moyen (40% expliqué)</span></div>
+        <div class="ex-row"><span class="ex-k">R² = 0,00</span><span class="ex-v">X n'explique rien de Y</span></div>
+      </div></div>
+      <div class="why-box" style="margin-top:8px">💡 <b>Attention :</b> R² = 0,81 ne veut pas dire "81% de chances que la prédiction soit juste". Ça veut dire que le budget pub (X) explique 81% des variations des ventes (Y). Les 19% restants viennent d'autres facteurs non inclus dans le modèle.</div>`,
+    exemple: null
+  },
+  13: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Probabilité conditionnelle — P(B|A)</div>
+      <div class="es-content">P(B|A) se lit "probabilité de B <em>sachant que</em> A s'est réalisé". On restreint l'univers à A — A est maintenant notre nouveau "tout".</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">P(B|A) = P(A∩B) / P(A)</div>
+      <div class="defs-row" style="margin-top:8px">
+        <div class="def-chip"><b>P(A∩B)</b> = probabilité que A ET B se réalisent tous les deux</div>
+        <div class="def-chip"><b>P(A)</b> = probabilité que A se réalise (notre nouvel univers)</div>
+      </div></div>
+      <div class="why-box">💡 <b>Intuition :</b> Tu sais que A s'est passé. Donc l'univers des possibles = A. Dans cet univers réduit, quelle proportion correspond aussi à B ? C'est P(A∩B) / P(A).</div></div>`,
+    exemple: { titre: "🏭 Exemple — Usine avec 2 machines",
+      lignes: [
+        { k: "P(pièce défectueuse) = P(A∩B)", v: "0,06" },
+        { k: "P(vient de la machine A) = P(A)", v: "0,60" },
+        { k: "P(défectueuse | vient de A) = 0,06 / 0,60", v: "0,10 = 10%", result: true }
+      ], conclusion: "→ Si on sait que la pièce vient de la machine A, elle a 10% de chances d'être défectueuse." }
+  },
+  14: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 Indépendance entre deux événements</div>
+      <div class="es-content">A et B sont <b>indépendants</b> si la réalisation de l'un ne change pas la probabilité de l'autre. En d'autres termes : savoir que A s'est passé ne t'apprend rien sur B.</div></div>
+      <div class="explain-section"><div class="es-label">📐 La règle clé</div>
+      <div class="es-content">Si A et B sont indépendants :<br>
+      <div class="formula-pill" style="margin-top:6px">P(A∩B) = P(A) × P(B)</div>
+      <div class="why-box" style="margin-top:8px">💡 <b>Exemple d'événements indépendants :</b> lancer une pièce ET lancer un dé. Le résultat de la pièce n'influence pas le dé. P(Pile ∩ 6) = 1/2 × 1/6 = 1/12.<br><br><b>Exemple d'événements dépendants :</b> "pleuvoir aujourd'hui" et "vendre des parapluies" — ce n'est pas indépendant !</div></div></div>`,
+    exemple: { titre: "🔢 Calcul de cette question",
+      lignes: [
+        { k: "P(A)", v: "0,4" },
+        { k: "P(B)", v: "0,3" },
+        { k: "A et B indépendants", v: "→ on peut multiplier" },
+        { k: "P(A∩B) = 0,4 × 0,3", v: "0,12", result: true }
+      ], conclusion: "→ 12% de chances que A ET B se réalisent tous les deux." }
+  },
+  15: {
+    state: `
+      <div class="explain-section"><div class="es-label">📖 P(A∪B) — probabilité que A OU B se réalise</div>
+      <div class="es-content">A∪B = "A ou B" = au moins l'un des deux se réalise (les deux peuvent aussi se réaliser ensemble).</div></div>
+      <div class="explain-section"><div class="es-label">📐 La formule</div>
+      <div class="es-content"><div class="formula-pill">P(A∪B) = P(A) + P(B) − P(A∩B)</div>
+      <div class="why-box" style="margin-top:8px">💡 <b>Pourquoi soustraire P(A∩B) ?</b> Imagine deux cercles qui se chevauchent (diagramme de Venn). Si tu additionnes P(A) + P(B), tu comptes la zone du chevauchement (A∩B) deux fois. Donc tu la soustrais une fois pour corriger.</div></div></div>`,
+    exemple: { titre: "🔢 Calcul de cette question",
+      lignes: [
+        { k: "P(A)", v: "0,5" },
+        { k: "P(B)", v: "0,4" },
+        { k: "P(A∩B)", v: "0,2" },
+        { k: "P(A∪B) = 0,5 + 0,4 − 0,2", v: "0,70", result: true }
+      ], conclusion: "→ 70% de chances que A OU B (ou les deux) se réalisent." }
+  }
+};
+
+function startQuiz() {
+  document.querySelector('.intro-box').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'flex';
+  document.getElementById('quizContainer').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setConf(qNum, level, btn) {
+  if (confidence[qNum]) return;
+  confidence[qNum] = level;
+  const card = document.getElementById('card-' + qNum);
+  card.querySelectorAll('.conf-btn').forEach(b => { b.classList.remove('sel'); b.classList.add('disabled'); });
+  btn.classList.remove('disabled'); btn.classList.add('sel');
+  card.querySelectorAll('.option').forEach(o => o.classList.add('unlocked'));
+}
+
+function choose(el, qNum) {
+  if (!confidence[qNum]) return;
+  const container = el.closest('.options');
+  if (container.dataset.locked) return;
+  container.dataset.locked = 'true';
+  const options = Array.from(container.querySelectorAll('.option'));
+  const idx = options.indexOf(el);
+  const correct = parseInt(container.dataset.correct);
+  const topic = container.dataset.topic;
+  const conf = confidence[qNum];
+  const isCorrect = idx === correct;
+  options.forEach(o => o.classList.add('locked'));
+  options[correct].classList.add('correct');
+  options[correct].querySelector('.dot').textContent = '✓';
+  if (isCorrect) { scoreCount++; } else { el.classList.add('wrong'); el.querySelector('.dot').textContent = '✗'; }
+  answered++;
+  document.getElementById('scoreDisplay').textContent = scoreCount + ' / ' + TOTAL;
+  document.getElementById('progressFill').style.width = (answered / TOTAL * 100) + '%';
+  document.getElementById('progressText').textContent = answered + ' / ' + TOTAL;
+  results[qNum] = { correct: isCorrect, conf, topic };
+  showMetaFeedback(qNum, isCorrect, conf);
+  document.getElementById('card-' + qNum).classList.add('answered');
+}
+
+function buildExemple(ex) {
+  if (!ex) return '';
+  let rows = ex.lignes.map(l => `<div class="ex-row ${l.result?'ex-result':''}"><span class="ex-k">${l.k}</span><span class="ex-v">${l.v}</span></div>`).join('');
+  return `<div class="example-block"><div style="font-size:0.8rem;font-weight:700;color:#34d399;margin-bottom:8px;">${ex.titre}</div>${rows}${ex.conclusion?`<div style="margin-top:10px;font-size:0.83rem;color:#94a3b8;border-top:1px solid #1e293b;padding-top:8px;">${ex.conclusion}</div>`:''}</div>`;
+}
+
+function showMetaFeedback(qNum, isCorrect, conf) {
+  const mf = document.getElementById('mf-' + qNum);
+  let cls, title, body, reflect = false;
+  if (isCorrect && conf === 'sure') { cls = 'mf-mastered'; title = '✅ Maîtrisé !'; body = 'Tu savais et t\'avais raison. Lis l\'explication pour consolider.'; }
+  else if (isCorrect && conf === 'maybe') { cls = 'mf-growth'; title = '📈 Zone de progression'; body = 'Bonne réponse mais pas sûr·e. Lis l\'explication pour vraiment ancrer ça.'; }
+  else if (isCorrect && conf === 'guess') { cls = 'mf-lucky'; title = '🍀 Chanceux·se !'; body = 'Bonne réponse mais tu as deviné. Lis l\'explication — t\'as besoin de comprendre le fond.'; reflect = true; }
+  else if (!isCorrect && conf === 'sure') { cls = 'mf-blind'; title = '🚨 Angle mort ! Tu étais sûr·e mais c\'est faux.'; body = 'PRIORITÉ 1. Lis l\'explication attentivement.'; reflect = true; }
+  else if (!isCorrect && conf === 'maybe') { cls = 'mf-known-gap'; title = '⚠️ Gap connu'; body = 'Tu n\'étais pas sûr·e, et effectivement. Lis l\'explication pour combler ce trou.'; reflect = true; }
+  else { cls = 'mf-gap'; title = '📝 Gap honnête'; body = 'Tu ne savais pas. Pas de honte — lis l\'explication.'; reflect = true; }
+
+  const exp = explanations[qNum];
+  const exempleHtml = exp && exp.exemple ? buildExemple(exp.exemple) : '';
+  let html = `<div class="${cls}"><div class="mf-title">${title}</div><div class="mf-body">${body}</div></div>
+  <div class="explain-box"><div class="ex-title">📚 Explication complète</div>${exp ? exp.state : ''}${exempleHtml}</div>`;
+  if (reflect) {
+    html += `<div class="reflect-prompt"><p>🤔 Pourquoi tu penses avoir raté ?</p><select class="reflect-select"><option value="">— Sélectionne une raison —</option><option>Je ne connaissais pas du tout ce point</option><option>Je confondais avec une autre formule</option><option>Je ne comprenais pas les abréviations</option><option>J'avais appris mais j'ai oublié</option><option>Je n'avais pas compris le concept en profondeur</option></select></div>`;
+  }
+  mf.innerHTML = html;
+  mf.classList.add('show');
+}
+
+function showDashboard() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  const mastered=[], growth=[], lucky=[], blindSpots=[], knownGaps=[], gaps=[];
+  for (let q in results) {
+    const r = results[q];
+    if (r.correct && r.conf==='sure') mastered.push(r.topic);
+    else if (r.correct && r.conf==='maybe') growth.push(r.topic);
+    else if (r.correct && r.conf==='guess') lucky.push(r.topic);
+    else if (!r.correct && r.conf==='sure') blindSpots.push(r.topic);
+    else if (!r.correct && r.conf==='maybe') knownGaps.push(r.topic);
+    else gaps.push(r.topic);
+  }
+  const pct = Math.round(scoreCount / TOTAL * 100);
+  document.getElementById('dashScore').textContent = scoreCount + ' / ' + TOTAL + ' (' + pct + '%)';
+  document.getElementById('dashSub').textContent = pct >= 80 ? 'Excellente maîtrise des stats !' : pct >= 60 ? 'Bonne base — quelques formules à consolider.' : 'Du boulot, mais tu sais exactement où focaliser !';
+  const al = lucky.length > 0 ? ' · 🍀 '+lucky.length+' chanceux' : '';
+  document.getElementById('dashGrid').innerHTML = `
+    <div class="dash-card dc-mastered"><div class="dc-header"><span class="dc-icon">✅</span><span class="dc-title">Maîtrisé</span></div><div class="dc-count">${mastered.length}</div><div class="dc-desc">Tu savais ET tu avais raison${al}</div><div class="topic-list">${mastered.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#10b981"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun</div>'}</div></div>
+    <div class="dash-card dc-growth"><div class="dc-header"><span class="dc-icon">📈</span><span class="dc-title">Zone de progression</span></div><div class="dc-count">${growth.length}</div><div class="dc-desc">Bonne réponse mais pas sûr·e</div><div class="topic-list">${growth.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#4ade80"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun</div>'}</div></div>
+    <div class="dash-card dc-blind"><div class="dc-header"><span class="dc-icon">🚨</span><span class="dc-title">Angles Morts</span></div><div class="dc-count">${blindSpots.length}</div><div class="dc-desc">Sûr·e mais faux·sse — PRIORITÉ 1</div><div class="topic-list">${blindSpots.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f97316"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun angle mort 🎉</div>'}</div></div>
+    <div class="dash-card dc-gap"><div class="dc-header"><span class="dc-icon">📝</span><span class="dc-title">Lacunes</span></div><div class="dc-count">${knownGaps.length+gaps.length}</div><div class="dc-desc">Points à apprendre</div><div class="topic-list">${[...knownGaps,...gaps].map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f87171"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucune lacune 🔥</div>'}</div></div>`;
+  let steps = '';
+  if (blindSpots.length>0) steps+=`<div class="plan-step"><div class="plan-num pn-1">1</div><div class="plan-content"><b>🚨 URGENT — Angles morts :</b><br><em>${blindSpots.join(', ')}</em>.<br>Relis les explications, refais les calculs à la main sans regarder.</div></div>`;
+  const tl=[...knownGaps,...gaps];
+  if (tl.length>0) steps+=`<div class="plan-step"><div class="plan-num pn-2">${blindSpots.length>0?'2':'1'}</div><div class="plan-content"><b>📚 Lacunes à combler :</b><br><em>${tl.join(', ')}</em>.<br>Relis les explications, essaie de refaire les exemples chiffrés sans regarder.</div></div>`;
+  if (lucky.length>0) steps+=`<div class="plan-step"><div class="plan-num pn-2">⚠️</div><div class="plan-content"><b>🍀 Coups de chance :</b> <em>${lucky.join(', ')}</em>.<br>Tu as eu juste en devinant — relis l'explication.</div></div>`;
+  if (growth.length>0) steps+=`<div class="plan-step"><div class="plan-num pn-3">${blindSpots.length>0||tl.length>0?'3':'1'}</div><div class="plan-content"><b>📈 Consolide :</b><br>Incertain·e sur : <em>${growth.join(', ')}</em>. Encore quelques exercices.</div></div>`;
+  if (mastered.length===TOTAL) steps=`<div class="plan-step"><div class="plan-num pn-3">🏆</div><div class="plan-content"><b>Parfait !</b> Toutes les notions maîtrisées. Garde ça frais avec un calcul complet avant l'exam.</div></div>`;
+  document.getElementById('planSteps').innerHTML = steps||`<div class="plan-step"><div class="plan-num pn-3">✨</div><div class="plan-content">Continue à t'entraîner régulièrement !</div></div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restartQuiz() {
+  scoreCount=0; answered=0;
+  Object.keys(confidence).forEach(k=>delete confidence[k]);
+  Object.keys(results).forEach(k=>delete results[k]);
+  document.getElementById('dashboard').style.display='none';
+  document.querySelector('.intro-box').style.display='block';
+  document.getElementById('scoreBar').style.display='none';
+  document.getElementById('quizContainer').style.display='none';
+  document.getElementById('scoreDisplay').textContent='0 / '+TOTAL;
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressText').textContent='0 / '+TOTAL;
+  document.querySelectorAll('.card').forEach(c=>{
+    c.classList.remove('answered');
+    c.querySelectorAll('.option').forEach(o=>{o.classList.remove('correct','wrong','locked','unlocked');o.querySelector('.dot').textContent='';});
+    c.querySelectorAll('.conf-btn').forEach(b=>b.classList.remove('sel','disabled'));
+    c.querySelectorAll('.options').forEach(o=>delete o.dataset.locked);
+    c.querySelectorAll('.meta-feedback').forEach(mf=>{mf.classList.remove('show');mf.innerHTML='';});
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
