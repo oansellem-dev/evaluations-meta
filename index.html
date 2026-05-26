@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes Diagnostics Métacognitifs</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 16px; }
+h1 { font-size: 2rem; color: #c4b5fd; margin-bottom: 8px; text-align: center; }
+.sub { color: #64748b; font-size: 0.95rem; margin-bottom: 40px; text-align: center; }
+.cards { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 480px; }
+.card { border-radius: 16px; padding: 24px 28px; text-decoration: none; display: flex; align-items: center; gap: 18px; transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+.card-icon { font-size: 2.2rem; flex-shrink: 0; }
+.card-body .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.card-body .card-desc { font-size: 0.82rem; color: #94a3b8; }
+.c-bpfs { background: linear-gradient(135deg, #1a0533, #2e1065); border: 2px solid #7c3aed; }
+.c-bpfs .card-title { color: #c4b5fd; }
+.c-stats { background: linear-gradient(135deg, #021a0e, #052e16); border: 2px solid #10b981; }
+.c-stats .card-title { color: #6ee7b7; }
+.c-seo { background: linear-gradient(135deg, #020c1b, #0c2847); border: 2px solid #0ea5e9; }
+.c-seo .card-title { color: #7dd3fc; }
+.footer { margin-top: 40px; color: #374151; font-size: 0.78rem; }
+</style>
+</head>
+<body>
+<h1>🧠 Diagnostics Métacognitifs</h1>
+<p class="sub">Choisis ta matière — indique ta confiance avant de répondre,<br>reçois une explication complète après chaque question.</p>
+<div class="cards">
+  <a href="bpfs.html" class="card c-bpfs">
+    <div class="card-icon">💜</div>
+    <div class="card-body">
+      <div class="card-title">BPFS / Startup</div>
+      <div class="card-desc">15 questions · Coûts, Marges, CLV, P&L, Excel, Dashboard</div>
+    </div>
+  </a>
+  <a href="stats.html" class="card c-stats">
+    <div class="card-icon">💚</div>
+    <div class="card-body">
+      <div class="card-title">Statistiques</div>
+      <div class="card-desc">15 questions · Moyenne, Variance, Régression, Probabilités</div>
+    </div>
+  </a>
+  <a href="seo.html" class="card c-seo">
+    <div class="card-icon">💙</div>
+    <div class="card-body">
+      <div class="card-title">SEO / GEO</div>
+      <div class="card-desc">15 questions · Intents, Balises, Landing page, GEO en 2026</div>
+    </div>
+  </a>
+</div>
+<div class="footer">Chaque réponse → explication détaillée · Dashboard personnalisé à la fin</div>
+</body>
+</html>
