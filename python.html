@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Métacognitif — Python</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #1a0a00 0%, #1f0d00 50%, #1a0800 100%);
+  padding: 44px 20px 36px; text-align: center;
+  border-bottom: 3px solid #f97316;
+}
+.hero h1 { font-size: 1.9rem; color: #fb923c; margin-bottom: 6px; }
+.hero .sub { color: #94a3b8; font-size: 0.97rem; max-width: 560px; margin: 0 auto 14px; line-height: 1.6; }
+.badge-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; }
+
+.intro-box { max-width: 820px; margin: 28px auto 0; padding: 0 16px; }
+.meta-explain { background: #1a0a00; border: 1px solid #7c2d12; border-radius: 14px; padding: 24px 28px; }
+.meta-explain h2 { color: #fb923c; margin-bottom: 14px; font-size: 1.1rem; }
+.meta-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+@media(max-width:600px){ .meta-grid { grid-template-columns: 1fr; } }
+.meta-cell { border-radius: 10px; padding: 14px; text-align: center; }
+.mc-green { background: #052e16; border: 1px solid #10b981; }
+.mc-yellow { background: #1c1500; border: 1px solid #f59e0b; }
+.mc-red { background: #1c0a0a; border: 1px solid #ef4444; }
+.mc-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.mc-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+.mc-green .mc-label { color: #10b981; }
+.mc-yellow .mc-label { color: #f59e0b; }
+.mc-red .mc-label { color: #ef4444; }
+.mc-desc { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
+
+.start-btn {
+  display: block; margin: 20px auto 0;
+  background: linear-gradient(135deg, #9a3412, #f97316);
+  color: white; border: none; padding: 14px 40px;
+  border-radius: 12px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.4); }
+
+.score-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #0d1117; border-bottom: 2px solid #7c2d12;
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+}
+.score-label { color: #94a3b8; font-size: 0.85rem; }
+.score-value { color: #fb923c; font-size: 1.2rem; font-weight: 700; min-width: 55px; }
+.progress-track { flex: 1; height: 6px; background: #1f2937; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #f97316, #fbbf24); border-radius: 4px; transition: width .4s; width: 0%; }
+
+.container { max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; display: none; }
+
+.section-title {
+  text-align: center; font-size: 1.2rem; font-weight: 700;
+  color: #fb923c; margin: 32px 0 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title::before, .section-title::after {
+  content: ''; flex: 1; height: 2px;
+  background: linear-gradient(90deg, transparent, #f97316, transparent);
+}
+
+.card { background: #111827; border: 1px solid #1e293b; border-radius: 14px; padding: 22px; margin-bottom: 22px; transition: border-color .3s; }
+.card.answered { border-color: #7c2d12; }
+
+.q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.q-num {
+  background: linear-gradient(135deg, #9a3412, #f97316);
+  color: white; font-weight: 700; font-size: 0.8rem;
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.q-text { font-size: 0.96rem; line-height: 1.65; color: #e2e8f0; font-weight: 500; }
+.q-code { background: #0d1117; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 0.83rem; color: #fde68a; white-space: pre; overflow-x: auto; line-height: 1.7; }
+
+.tag { display: inline-block; font-size: 0.67rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-bottom: 5px; letter-spacing: 0.05em; text-transform: uppercase; }
+.tag-var { background: #431407; color: #fb923c; }
+.tag-cond { background: #1c1500; color: #fbbf24; }
+.tag-loop { background: #0c2847; color: #38bdf8; }
+.tag-list { background: #1e1b4b; color: #a78bfa; }
+.tag-func { background: #052e16; color: #34d399; }
+
+.step-label { font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.conf-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.conf-btn { flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; font-size: 0.82rem; font-weight: 600; transition: all .2s; text-align: center; background: #0f172a; }
+.conf-btn:hover { transform: scale(1.03); }
+.cb-sure { border-color: #1a3a25; color: #34d399; }
+.cb-sure:hover, .cb-sure.sel { background: #052e16; border-color: #10b981; }
+.cb-maybe { border-color: #2a1f05; color: #fbbf24; }
+.cb-maybe:hover, .cb-maybe.sel { background: #1c1500; border-color: #f59e0b; }
+.cb-guess { border-color: #2a0f0f; color: #f87171; }
+.cb-guess:hover, .cb-guess.sel { background: #1c0a0a; border-color: #ef4444; }
+.conf-btn.sel { cursor: default; }
+.conf-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { background: #0f172a; border: 2px solid #1e293b; border-radius: 10px; padding: 11px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: all .2s; font-size: 0.91rem; pointer-events: none; }
+.option .opt-code { font-family: 'Courier New', monospace; color: #fde68a; }
+.option.unlocked { pointer-events: auto; }
+.option:hover:not(.locked) { border-color: #f97316; background: #1a0a00; transform: translateX(3px); }
+.dot { width: 24px; height: 24px; border-radius: 50%; background: #1f2937; border: 2px solid #374151; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; transition: all .2s; margin-top: 1px; }
+.option.correct { border-color: #10b981; background: #052e16; }
+.option.correct .dot { background: #10b981; border-color: #10b981; color: white; font-weight: 700; }
+.option.wrong { border-color: #ef4444; background: #1c0a0a; }
+.option.wrong .dot { background: #ef4444; border-color: #ef4444; color: white; }
+.option.locked { cursor: default; pointer-events: none; }
+
+.meta-feedback { display: none; margin-top: 14px; border-radius: 11px; padding: 16px 18px; font-size: 0.86rem; line-height: 1.7; }
+.meta-feedback.show { display: block; }
+.mf-mastered { background: #052e16; border: 2px solid #10b981; }
+.mf-mastered .mf-title { color: #10b981; font-weight: 700; font-size: 0.95rem; }
+.mf-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.mf-growth .mf-title { color: #4ade80; font-weight: 700; font-size: 0.95rem; }
+.mf-lucky { background: #1a1a2e; border: 2px solid #60a5fa; }
+.mf-lucky .mf-title { color: #60a5fa; font-weight: 700; font-size: 0.95rem; }
+.mf-blind { background: #2a0a00; border: 2px solid #f97316; }
+.mf-blind .mf-title { color: #f97316; font-weight: 700; font-size: 0.95rem; }
+.mf-known-gap { background: #1c1000; border: 2px solid #fbbf24; }
+.mf-known-gap .mf-title { color: #fbbf24; font-weight: 700; font-size: 0.95rem; }
+.mf-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.mf-gap .mf-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
+.mf-body { color: #94a3b8; margin-top: 4px; }
+
+.explain-box { margin-top: 14px; background: #0d1117; border: 1px solid #1e293b; border-radius: 10px; padding: 16px 18px; }
+.explain-box .ex-title { font-size: 0.8rem; font-weight: 700; color: #fb923c; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.explain-section { margin-bottom: 12px; }
+.explain-section:last-child { margin-bottom: 0; }
+.explain-section .es-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.explain-section .es-content { font-size: 0.87rem; color: #cbd5e1; line-height: 1.7; }
+.explain-section .es-content b { color: #e2e8f0; }
+.formula-pill { display: inline-block; background: #431407; border: 1px solid #7c2d12; color: #fde68a; font-weight: 700; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; margin: 6px 0; font-family: 'Courier New', monospace; }
+.example-block { background: #111827; border: 1px solid #7c2d12; border-radius: 8px; padding: 12px 14px; margin-top: 8px; font-size: 0.85rem; }
+.example-block .ex-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+.example-block .ex-row .ex-k { color: #64748b; }
+.example-block .ex-row .ex-v { color: #e2e8f0; font-weight: 600; font-family: 'Courier New', monospace; }
+.example-block .ex-row.ex-result { border-top: 1px solid #1e293b; margin-top: 6px; padding-top: 8px; }
+.example-block .ex-row.ex-result .ex-k { color: #fb923c; font-weight: 700; }
+.example-block .ex-row.ex-result .ex-v { color: #fde68a; font-size: 1rem; }
+.defs-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.def-chip { background: #1f2937; border: 1px solid #374151; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; color: #94a3b8; }
+.def-chip b { color: #e2e8f0; }
+.why-box { background: #1a0800; border-left: 3px solid #f97316; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 8px; font-size: 0.84rem; color: #94a3b8; line-height: 1.6; }
+.why-box b { color: #fb923c; }
+.code-block { background: #0d1117; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; margin-top: 8px; font-family: 'Courier New', monospace; font-size: 0.82rem; color: #fde68a; white-space: pre; line-height: 1.7; overflow-x: auto; }
+
+.reflect-prompt { margin-top: 12px; padding: 10px 14px; background: #0d1117; border: 1px dashed #7c2d12; border-radius: 8px; }
+.reflect-prompt p { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+.reflect-select { width: 100%; background: #1f2937; border: 1px solid #374151; color: #cbd5e1; padding: 7px 10px; border-radius: 7px; font-size: 0.82rem; cursor: pointer; }
+
+.dashboard { display: none; max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; }
+.dash-hero { background: linear-gradient(135deg, #1a0a00, #1f0d00); border: 2px solid #f97316; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 28px; }
+.dash-hero h2 { color: #fb923c; font-size: 1.5rem; margin-bottom: 6px; }
+.dash-score { font-size: 3.5rem; font-weight: 900; color: #f97316; margin: 8px 0; }
+.dash-sub { color: #64748b; font-size: 0.9rem; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+@media(max-width:600px){ .dash-grid { grid-template-columns: 1fr; } }
+.dash-card { border-radius: 13px; padding: 18px; }
+.dc-mastered { background: #052e16; border: 2px solid #10b981; }
+.dc-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.dc-blind { background: #2a0a00; border: 2px solid #f97316; }
+.dc-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.dc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dc-icon { font-size: 1.4rem; }
+.dc-title { font-size: 0.95rem; font-weight: 700; }
+.dc-mastered .dc-title { color: #10b981; }
+.dc-growth .dc-title { color: #4ade80; }
+.dc-blind .dc-title { color: #f97316; }
+.dc-gap .dc-title { color: #f87171; }
+.dc-count { font-size: 2rem; font-weight: 900; margin-bottom: 6px; }
+.dc-mastered .dc-count { color: #10b981; }
+.dc-growth .dc-count { color: #4ade80; }
+.dc-blind .dc-count { color: #f97316; }
+.dc-gap .dc-count { color: #f87171; }
+.dc-desc { font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+.topic-list { margin-top: 8px; }
+.topic-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin: 4px 0; background: rgba(0,0,0,0.2); border-radius: 7px; font-size: 0.8rem; color: #cbd5e1; }
+.topic-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.plan-box { background: #1a0a00; border: 2px solid #7c2d12; border-radius: 14px; padding: 22px; margin-top: 24px; }
+.plan-box h3 { color: #fb923c; margin-bottom: 16px; font-size: 1.05rem; }
+.plan-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #431407; }
+.plan-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.plan-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+.pn-1 { background: #f97316; color: #0a0a0a; }
+.pn-2 { background: #fbbf24; color: #0a0a0a; }
+.pn-3 { background: #4ade80; color: #0a0a0a; }
+.plan-content { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+.plan-content b { color: #e2e8f0; }
+.restart-btn { display: block; margin: 24px auto 0; background: linear-gradient(135deg, #9a3412, #f97316); color: white; border: none; padding: 12px 32px; border-radius: 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
+.restart-btn:hover { background: linear-gradient(135deg, #c2410c, #fb923c); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🐍 Diagnostic Métacognitif — Python</h1>
+  <p class="sub">Indique ta confiance <strong>avant</strong> de répondre. Chaque explication te dit <em>pourquoi</em> et <em>comment</em> — avec des exemples tirés des TPs.</p>
+  <div class="badge-row">
+    <span class="badge" style="background:#431407;color:#fb923c;">🔤 Variables & Types</span>
+    <span class="badge" style="background:#1c1500;color:#fbbf24;">🔀 Conditions</span>
+    <span class="badge" style="background:#0c2847;color:#38bdf8;">🔁 Boucles</span>
+    <span class="badge" style="background:#1e1b4b;color:#a78bfa;">📋 Listes</span>
+    <span class="badge" style="background:#052e16;color:#34d399;">⚙️ Fonctions</span>
+    <span class="badge" style="background:#1e2433;color:#94a3b8;">15 questions · TP2 à TP5</span>
+  </div>
+</div>
+
+<div class="intro-box">
+  <div class="meta-explain">
+    <h2>🎯 Comment ça marche ?</h2>
+    <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;">Chaque question a <strong style="color:#e2e8f0;">2 étapes</strong>. D'abord ta confiance, ensuite ta réponse. Après : explication complète avec le <em>pourquoi</em>, le <em>comment</em>, et un exemple tiré des TPs.</p>
+    <div class="meta-grid">
+      <div class="meta-cell mc-green"><div class="mc-icon">🟢</div><div class="mc-label">Je suis sûr·e</div><div class="mc-desc">Tu maîtrises vraiment ou tu crois maîtriser ?</div></div>
+      <div class="meta-cell mc-yellow"><div class="mc-icon">🟡</div><div class="mc-label">Je pense…</div><div class="mc-desc">T'as une idée mais pas sûr·e</div></div>
+      <div class="meta-cell mc-red"><div class="mc-icon">🔴</div><div class="mc-label">Je devine</div><div class="mc-desc">T'as vraiment pas la réponse</div></div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">🚀 Commencer le diagnostic</button>
+  </div>
+</div>
+
+<div class="score-bar" id="scoreBar" style="display:none;">
+  <span class="score-label">Score</span>
+  <span class="score-value" id="scoreDisplay">0 / 15</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span style="color:#64748b;font-size:0.8rem;" id="progressText">0 / 15</span>
+</div>
+
+<div class="container" id="quizContainer">
+
+  <div class="section-title">🔤 Variables, Types &amp; Input</div>
+
+  <!-- Q1 -->
+  <div class="card" id="card-1">
+    <div class="q-header"><div class="q-num">1</div><div>
+      <span class="tag tag-var">Variables & Types</span>
+      <div class="q-text">Que retourne <strong>toujours</strong> la fonction <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">input()</code> en Python, peu importe ce que l'utilisateur tape ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(1,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(1,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(1,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="1" data-topic="input() retourne toujours str">
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>int — un nombre entier</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>float — un nombre décimal</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>str — une chaîne de caractères</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Le même type que ce que l'utilisateur a tapé</div>
+    </div>
+    <div class="meta-feedback" id="mf-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="card-2">
+    <div class="q-header"><div class="q-num">2</div><div>
+      <span class="tag tag-var">Variables & Types</span>
+      <div class="q-text">Que vaut l'expression <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">17 % 5</code> en Python ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(2,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(2,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(2,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="2" data-topic="Opérateur modulo % = reste de la division">
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>3 — résultat de la division entière</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>2 — reste de la division entière</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>3.4 — résultat de la division</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>12 — 17 moins 5</div>
+    </div>
+    <div class="meta-feedback" id="mf-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="card-3">
+    <div class="q-header"><div class="q-num">3</div><div>
+      <span class="tag tag-var">Variables & Types</span>
+      <div class="q-text">L'utilisateur saisit son âge via <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">age = input("Âge : ")</code>. Pour afficher son âge dans 10 ans, tu dois écrire :</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(3,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(3,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(3,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="3" data-topic="Conversion de type : int(age) pour convertir str → int">
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div><span class="opt-code">print(int(age) + 10)</span></div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div><span class="opt-code">print(age + 10)</span></div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div><span class="opt-code">print(age.convert() + 10)</span></div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div><span class="opt-code">print(str(age) + 10)</span></div>
+    </div>
+    <div class="meta-feedback" id="mf-3"></div>
+  </div>
+
+  <div class="section-title">🔀 Conditions if / elif / else</div>
+
+  <!-- Q4 -->
+  <div class="card" id="card-4">
+    <div class="q-header"><div class="q-num">4</div><div>
+      <span class="tag tag-cond">Conditions</span>
+      <div class="q-text">Un étudiant a une moyenne de <strong>14.0</strong>. Quel message s'affiche avec ce code ?</div>
+      <div class="q-code">if moyenne &lt; 10:    print("Échec")
+elif moyenne &lt; 12: print("Passable")
+elif moyenne &lt; 14: print("Assez Bien")
+elif moyenne &lt; 16: print("Bien")
+else:               print("Très Bien")</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(4,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(4,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(4,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="4" data-topic="if/elif/else : les conditions sont testées dans l'ordre">
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Assez Bien</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Très Bien</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Bien</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>Passable</div>
+    </div>
+    <div class="meta-feedback" id="mf-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="card-5">
+    <div class="q-header"><div class="q-num">5</div><div>
+      <span class="tag tag-cond">Conditions</span>
+      <div class="q-text">Si <strong>aucune condition</strong> n'est vraie dans un bloc <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">if / elif</code> et qu'il n'y a <strong>pas de</strong> <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">else</code>, que se passe-t-il ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(5,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(5,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(5,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="5" data-topic="if sans else : rien ne se passe si aucune condition n'est vraie">
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Python affiche une erreur</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Rien ne s'exécute, le programme continue normalement après le bloc</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>La dernière condition testée s'affiche quand même</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Python retourne False automatiquement</div>
+    </div>
+    <div class="meta-feedback" id="mf-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="card-6">
+    <div class="q-header"><div class="q-num">6</div><div>
+      <span class="tag tag-cond">Conditions</span>
+      <div class="q-text">On a <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">age = 25</code> et <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">salaire = 2000</code>. Que vaut cette condition ?
+      <div class="q-code">age > 18 and salaire > 3000</div></div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(6,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(6,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(6,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="4" data-q="6" data-topic="Opérateur and : les DEUX conditions doivent être vraies">
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>True — les deux conditions sont vraies</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>True — au moins une condition est vraie</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Erreur de syntaxe</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>False — avec and, les DEUX conditions doivent être vraies</div>
+    </div>
+    <div class="meta-feedback" id="mf-6"></div>
+  </div>
+
+  <div class="section-title">🔁 Boucles while &amp; for</div>
+
+  <!-- Q7 -->
+  <div class="card" id="card-7">
+    <div class="q-header"><div class="q-num">7</div><div>
+      <span class="tag tag-loop">Boucles</span>
+      <div class="q-text">Dans le TP4, on devait demander un code secret et <strong>répéter jusqu'à ce que le bon code soit tapé</strong>. Quelle boucle est la plus adaptée ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(7,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(7,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(7,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="7" data-topic="while : répète tant qu'une condition est vraie (nombre d'itérations inconnu)">
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>for — parce qu'on répète plusieurs fois</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>while — parce qu'on ne sait pas à l'avance combien de fois l'utilisateur va se tromper</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>Les deux font exactement la même chose</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>for — avec range(999) pour simuler une répétition infinie</div>
+    </div>
+    <div class="meta-feedback" id="mf-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="card-8">
+    <div class="q-header"><div class="q-num">8</div><div>
+      <span class="tag tag-loop">Boucles</span>
+      <div class="q-text">Combien de fois s'exécute le corps de cette boucle ?
+      <div class="q-code">for i in range(2, 10, 3):
+    print(i)</div></div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(8,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(8,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(8,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="8" data-topic="range(début, fin, pas) : range(2,10,3) = [2, 5, 8] → 3 itérations">
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>8 fois — de 2 à 10</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>4 fois — 10 divisé par 3 arrondi</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>3 fois — i prend les valeurs 2, 5, 8</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>2 fois — en partant de 2</div>
+    </div>
+    <div class="meta-feedback" id="mf-8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card" id="card-9">
+    <div class="q-header"><div class="q-num">9</div><div>
+      <span class="tag tag-loop">Boucles</span>
+      <div class="q-text">Dans le TP4, pour afficher les nombres impairs d'une liste en sautant les pairs, on utilisait <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">continue</code>. Quelle est la différence entre <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">break</code> et <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">continue</code> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(9,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(9,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(9,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="9" data-topic="break = stop total de la boucle / continue = skip l'itération courante">
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>break saute une itération, continue arrête la boucle</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>break arrête complètement la boucle, continue saute juste l'itération en cours et passe à la suivante</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>Les deux font la même chose : ils arrêtent la boucle</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>break quitte le programme entier, continue redémarre la boucle depuis le début</div>
+    </div>
+    <div class="meta-feedback" id="mf-9"></div>
+  </div>
+
+  <div class="section-title">📋 Les Listes</div>
+
+  <!-- Q10 -->
+  <div class="card" id="card-10">
+    <div class="q-header"><div class="q-num">10</div><div>
+      <span class="tag tag-list">Listes</span>
+      <div class="q-text">Quel est l'<strong>index</strong> de <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">"Charlie"</code> dans cette liste ?
+      <div class="q-code">prenoms = ["Alice", "Bob", "Charlie", "David"]</div></div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(10,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(10,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(10,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="10" data-topic="Index des listes : commence à 0 (Alice=0, Bob=1, Charlie=2)">
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>3 — le 3ème élément</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>1 — le deuxième élément</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>2 — les index commencent à 0</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>4 — la longueur de la liste</div>
+    </div>
+    <div class="meta-feedback" id="mf-10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="card-11">
+    <div class="q-header"><div class="q-num">11</div><div>
+      <span class="tag tag-list">Listes</span>
+      <div class="q-text">Après l'exécution de ce code, que contient la liste <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">nombres</code> ?
+      <div class="q-code">nombres = [12, 45, 78, 23, 56]
+nombres.pop()
+nombres.sort()</div></div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(11,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(11,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(11,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="4" data-q="11" data-topic="pop() supprime le dernier élément, sort() trie par ordre croissant">
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>[12, 23, 45, 56, 78]</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>[12, 45, 78, 23]</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>[23, 45, 56, 78]</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>[12, 23, 45, 78]</div>
+    </div>
+    <div class="meta-feedback" id="mf-11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="card-12">
+    <div class="q-header"><div class="q-num">12</div><div>
+      <span class="tag tag-list">Listes</span>
+      <div class="q-text">Dans le TP5, on devait <strong>insérer 99 à la 2ème position</strong> de la liste. Quelle méthode permet d'ajouter un élément à une <strong>position précise</strong> (pas forcément à la fin) ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(12,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(12,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(12,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="12" data-topic="insert(index, valeur) vs append(valeur) — append = toujours à la fin">
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div><span class="opt-code">append()</span> — ajoute à la position voulue</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div><span class="opt-code">insert()</span> — prend l'index ET la valeur en paramètres</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div><span class="opt-code">add()</span> — méthode standard des listes</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div><span class="opt-code">push()</span> — insère en début de liste</div>
+    </div>
+    <div class="meta-feedback" id="mf-12"></div>
+  </div>
+
+  <div class="section-title">⚙️ Fonctions</div>
+
+  <!-- Q13 -->
+  <div class="card" id="card-13">
+    <div class="q-header"><div class="q-num">13</div><div>
+      <span class="tag tag-func">Fonctions</span>
+      <div class="q-text">Que retourne une fonction qui ne contient <strong>pas de</strong> <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">return</code> ?
+      <div class="q-code">def saluer(prenom):
+    print("Bonjour " + prenom)
+
+resultat = saluer("Alice")
+print(resultat)</div></div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(13,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(13,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(13,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="13" data-topic="Sans return, une fonction retourne None automatiquement">
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>0</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>"" (chaîne vide)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>None</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>Une erreur Python (SyntaxError)</div>
+    </div>
+    <div class="meta-feedback" id="mf-13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="card" id="card-14">
+    <div class="q-header"><div class="q-num">14</div><div>
+      <span class="tag tag-func">Fonctions</span>
+      <div class="q-text">Dans le TP5, on avait <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">def calculer_aire(longueur, largeur)</code>. Quand on <strong>appelle</strong> la fonction avec <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">calculer_aire(5, 3)</code>, que sont <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">longueur</code> et <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">largeur</code> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(14,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(14,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(14,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="14" data-topic="Paramètres = dans la définition def / Arguments = dans l'appel">
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Des paramètres — ils sont dans la définition (def)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Des arguments — ils sont dans l'appel de la fonction</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Des variables globales — accessibles partout dans le programme</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>Des constantes — leurs valeurs ne changent pas</div>
+    </div>
+    <div class="meta-feedback" id="mf-14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="card-15">
+    <div class="q-header"><div class="q-num">15</div><div>
+      <span class="tag tag-func">Fonctions</span>
+      <div class="q-text">Le TP5 avait une fonction qui retourne <strong>deux valeurs</strong> : <code style="color:#fde68a;background:#0d1117;padding:1px 5px;border-radius:4px;">return aire, perimetre</code>. Comment récupérer correctement ces deux valeurs ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(15,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(15,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(15,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="15" data-topic="Déballage de tuple : aire, perimetre = calculer_rectangle(2, 3)">
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div><span class="opt-code">result = calculer_rectangle(2,3)</span> puis <span class="opt-code">result.aire</span> et <span class="opt-code">result.perimetre</span></div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div><span class="opt-code">aire, perimetre = calculer_rectangle(2, 3)</span></div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div><span class="opt-code">aire = calculer_rectangle(2,3) et perimetre = calculer_rectangle(2,3)</span></div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Impossible — on ne peut retourner qu'une seule valeur en Python</div>
+    </div>
+    <div class="meta-feedback" id="mf-15"></div>
+  </div>
+
+</div><!-- end container -->
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-hero">
+    <h2>🐍 Résultats — Python</h2>
+    <div class="dash-score" id="dashScore">0/15</div>
+    <div class="dash-sub" id="dashSub">Chargement...</div>
+  </div>
+  <div class="dash-grid" id="dashGrid"></div>
+  <div class="plan-box" id="planBox">
+    <h3>📋 Ton plan de révision personnalisé</h3>
+    <div id="planSteps"></div>
+  </div>
+  <button class="restart-btn" onclick="location.reload()">🔄 Recommencer le diagnostic</button>
+</div>
+
+<script>
+const TOTAL = 15;
+let score = 0;
+let answered = 0;
+let confs = {};
+let results = {};
+
+const explanations = {
+  1: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 La règle fondamentale</div>
+        <div class="es-content"><b>input() retourne TOUJOURS une chaîne de caractères (str)</b>, sans exception. Même si l'utilisateur tape "42", Python reçoit le texte <b>"42"</b>, pas le nombre 42.</div>
+      </div>
+      <div class="formula-pill">type(input("texte")) → &lt;class 'str'&gt;</div>
+      <div class="why-box"><b>Pourquoi ?</b> Parce que l'utilisateur peut taper n'importe quoi — du texte, des chiffres, des symboles. Python ne peut pas deviner l'intention, il prend tout comme du texte.</div>`,
+    exemple: {
+      titre: "🖥️ Exemple TP3 — Saisie de l'âge",
+      lignes: [
+        {k: "age = input('Âge : ')  ← l'utilisateur tape 25", v: ''},
+        {k: "type(age)", v: "<class 'str'>"},
+        {k: "age", v: '"25"  ← c\'est du texte !'},
+        {k: "age + 10", v: "❌ TypeError !  (str + int)"},
+        {k: "int(age) + 10", v: "35 ✅"},
+      ],
+      conclusion: "Toujours convertir avec int() ou float() avant de faire des calculs."
+    }
+  },
+  2: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 L'opérateur modulo %</div>
+        <div class="es-content"><b>%</b> donne le <b>reste</b> de la division entière. Ce n'est PAS la division normale. On l'a utilisé dans le TP2 pour calculer <code>a % b</code>.</div>
+      </div>
+      <div class="formula-pill">17 % 5 = ?  →  17 = 5 × 3 + 2  →  reste = 2</div>
+      <div class="why-box"><b>À quoi ça sert ?</b> Savoir si un nombre est <b>pair</b> : si <code>n % 2 == 0</code> → pair. Savoir si divisible : si <code>n % 3 == 0</code> → multiple de 3.</div>`,
+    exemple: {
+      titre: "📐 Calcul step by step : 17 % 5",
+      lignes: [
+        {k: "17 ÷ 5 =", v: "3 (partie entière)"},
+        {k: "5 × 3 =", v: "15"},
+        {k: "17 - 15 =", v: "2 ← c'est le reste"},
+        {k: "17 % 5 =", v: "2 ✅", result: true},
+        {k: "Autre exemple : 10 % 2 =", v: "0  (nombre pair)"},
+        {k: "Autre exemple : 7 % 2 =", v: "1  (nombre impair)"},
+      ],
+      conclusion: "Le résultat de % est toujours entre 0 et (diviseur - 1)."
+    }
+  },
+  3: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Conversion de types</div>
+        <div class="es-content"><code>age = input()</code> retourne une <b>str</b>. On ne peut pas faire <code>str + int</code> directement → Python donne une erreur. Il faut <b>convertir</b> avec <code>int()</code>.</div>
+      </div>
+      <div class="formula-pill">int(age) + 10  ← convertit str→int PUIS additionne</div>
+      <div class="why-box"><b>Les 3 conversions utiles :</b> <code>int(x)</code> → entier, <code>float(x)</code> → décimal, <code>str(x)</code> → texte. Dans le TP3, on convertissait l'âge et l'âge du père pour calculer la différence.</div>`,
+    exemple: {
+      titre: "🖥️ Exemple TP3 — Différence d'âges",
+      lignes: [
+        {k: "a = input('Ton âge : ')   → type str", v: '"20"'},
+        {k: "b = input('Âge père : ')  → type str", v: '"50"'},
+        {k: "c = int(a)  → type int", v: "20"},
+        {k: "d = int(b)  → type int", v: "50"},
+        {k: "Différence = d - c", v: "30 ✅", result: true},
+        {k: "Sans int() : b - a", v: "❌ TypeError"},
+      ],
+      conclusion: "Toujours int() ou float() avant de calculer sur une saisie utilisateur."
+    }
+  },
+  4: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Comment Python teste les conditions</div>
+        <div class="es-content">Python teste les conditions <b>dans l'ordre, de haut en bas</b>. Dès qu'une condition est vraie, il exécute ce bloc et <b>ignore tout le reste</b>. Avec moyenne = <b>14.0</b> :</div>
+      </div>
+      <div class="code-block">moyenne = 14.0
+if moyenne &lt; 10:    # 14.0 &lt; 10 ? NON
+elif moyenne &lt; 12:  # 14.0 &lt; 12 ? NON
+elif moyenne &lt; 14:  # 14.0 &lt; 14 ? NON (14 n'est PAS < 14)
+elif moyenne &lt; 16:  # 14.0 &lt; 16 ? OUI → "Bien" ✅</div>
+      <div class="why-box"><b>Le piège classique :</b> 14.0 n'est pas strictement inférieur à 14. La condition <code>moyenne &lt; 14</code> est FAUSSE pour moyenne = 14.0. On tombe donc dans <code>moyenne &lt; 16</code>.</div>`,
+    exemple: {
+      titre: "📊 Table des notes — Exercice TP3",
+      lignes: [
+        {k: "moyenne = 8", v: '→ "Échec"'},
+        {k: "moyenne = 11", v: '→ "Passable"'},
+        {k: "moyenne = 13.5", v: '→ "Assez Bien"'},
+        {k: "moyenne = 14.0", v: '→ "Bien" ✅', result: true},
+        {k: "moyenne = 18", v: '→ "Très Bien"'},
+      ],
+      conclusion: "Attention aux bornes : < 14 exclut 14, mais ≥ 14 l'inclut."
+    }
+  },
+  5: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Le bloc if sans else</div>
+        <div class="es-content">Si <b>aucune condition</b> n'est vraie et qu'il n'y a <b>pas de else</b>, Python <b>ne fait rien</b> — il passe simplement à la ligne suivante. Ce n'est pas une erreur.</div>
+      </div>
+      <div class="code-block">age = 5
+if age > 18:
+    print("Adulte")
+elif age > 12:
+    print("Ado")
+# ← Aucune condition vraie, pas de else
+# → Python continue sans rien afficher
+print("Suite du programme")  # s'exécute normalement</div>
+      <div class="why-box"><b>Différence avec else :</b> <code>else</code> est le "filet de sécurité" — il capture tous les cas non couverts. Sans lui, certains cas ne déclenchent simplement aucune action.</div>`,
+    exemple: {
+      titre: "🔀 Avec et sans else",
+      lignes: [
+        {k: "age = 5 — avec else", v: '→ affiche "Bébé" ✅'},
+        {k: "age = 5 — sans else", v: '→ rien ne s\'affiche'},
+        {k: "Le programme continue ?", v: "Oui, pas d'erreur ✅", result: true},
+        {k: "C'est une SyntaxError ?", v: "Non ❌"},
+      ],
+      conclusion: "else est optionnel. Sans lui, le programme continue silencieusement."
+    }
+  },
+  6: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 and vs or</div>
+        <div class="es-content">
+          <b>and</b> → les <b>DEUX</b> conditions doivent être vraies. Si une seule est fausse → False.<br>
+          <b>or</b> → au moins <b>UNE</b> condition doit être vraie. Les deux fausses → False.
+        </div>
+      </div>
+      <div class="formula-pill">age > 18 AND salaire > 3000 → True ET False = <b>False</b></div>
+      <div class="code-block">age = 25       # 25 > 18 ? OUI → True
+salaire = 2000 # 2000 > 3000 ? NON → False
+résultat = True and False = False ❌</div>
+      <div class="why-box"><b>Astuce :</b> <code>and</code> = comme une multiplication (True=1, False=0) : 1×0=0. <code>or</code> = comme une addition : 1+0=1.</div>`,
+    exemple: {
+      titre: "🔀 Table de vérité and / or",
+      lignes: [
+        {k: "True and True", v: "True ✅"},
+        {k: "True and False", v: "False ← notre cas"},
+        {k: "False and False", v: "False"},
+        {k: "True or False", v: "True ✅"},
+        {k: "age > 18 and salaire > 3000", v: "False ✅", result: true},
+      ],
+      conclusion: "and = strict (les DEUX). or = souple (au moins UNE)."
+    }
+  },
+  7: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 while vs for — la règle simple</div>
+        <div class="es-content">
+          <b>while</b> → quand on <b>ne sait pas à l'avance</b> combien de fois on va répéter (ex: "tant que l'utilisateur se trompe").<br>
+          <b>for</b> → quand on connaît <b>à l'avance</b> le nombre d'itérations (ex: "compter de 1 à 10").
+        </div>
+      </div>
+      <div class="code-block"># TP4 - Code secret → while (nombre d'essais inconnu)
+while code_saisi != code_secret:
+    code_saisi = input("Code : ")
+
+# TP4 - Compte à rebours → for (nombre fixe)
+for i in range(10, 0, -1):
+    print(i)</div>
+      <div class="why-box"><b>Danger du while :</b> si la condition reste toujours vraie → boucle infinie. Toujours prévoir une sortie avec <code>break</code> ou une variable qui change.</div>`,
+    exemple: {
+      titre: "⚖️ Comparaison while vs for",
+      lignes: [
+        {k: "Nombre d'itérations connu", v: "→ for ✅"},
+        {k: "Condition à respecter", v: "→ while ✅"},
+        {k: "Ex: 'de 1 à 20'", v: "for i in range(1, 21)"},
+        {k: "Ex: 'tant que erreur'", v: "while code != secret", result: true},
+      ],
+      conclusion: "En cas de doute : si tu peux écrire range(), utilise for. Sinon, while."
+    }
+  },
+  8: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 La fonction range(début, fin, pas)</div>
+        <div class="es-content"><code>range(2, 10, 3)</code> génère des nombres en partant de <b>2</b>, en avançant de <b>3 en 3</b>, jusqu'à (mais sans inclure) <b>10</b>.</div>
+      </div>
+      <div class="formula-pill">range(2, 10, 3) = [2, 5, 8] → 3 valeurs</div>
+      <div class="code-block">for i in range(2, 10, 3):
+    print(i)
+# Affiche : 2, puis 5, puis 8
+# 11 serait > 10, donc la boucle s'arrête
+# → 3 itérations</div>
+      <div class="why-box"><b>Rappel du TP4 :</b> pour un compte à rebours on utilise un <b>pas négatif</b> : <code>range(5, 0, -1)</code> → 5, 4, 3, 2, 1.</div>`,
+    exemple: {
+      titre: "📐 Décomposer range(2, 10, 3)",
+      lignes: [
+        {k: "Début = 2", v: "i = 2 ✅ (2 < 10)"},
+        {k: "Pas = +3 → 2+3 = 5", v: "i = 5 ✅ (5 < 10)"},
+        {k: "Pas = +3 → 5+3 = 8", v: "i = 8 ✅ (8 < 10)"},
+        {k: "Pas = +3 → 8+3 = 11", v: "11 ≥ 10 → STOP"},
+        {k: "Nombre total d'itérations", v: "3 ✅", result: true},
+      ],
+      conclusion: "La borne supérieure (fin) est EXCLUE. range(1,6) → 1,2,3,4,5 (pas 6)."
+    }
+  },
+  9: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 break et continue</div>
+        <div class="es-content">
+          <b>break</b> → <b>arrête complètement</b> la boucle. On sort et on ne revient plus.<br>
+          <b>continue</b> → <b>saute l'itération</b> en cours et passe à la suivante. La boucle continue.
+        </div>
+      </div>
+      <div class="code-block"># TP4 - Trouver le nombre mystère → break
+while True:
+    n = int(input("Nombre : "))
+    if n == 7:
+        break  ← sort de la boucle
+
+# TP4 - Afficher les impairs → continue
+for i in range(1, 11):
+    if i % 2 == 0:
+        continue  ← saute les pairs
+    print(i)  ← affiche 1, 3, 5, 7, 9</div>`,
+    exemple: {
+      titre: "🔁 Visualisation break vs continue",
+      lignes: [
+        {k: "break → quand i = 7", v: "1 2 3 4 5 6 STOP"},
+        {k: "continue → si i pair", v: "1 _ 3 _ 5 _ 7 _ 9"},
+        {k: "break = sortie totale ?", v: "Oui ✅", result: true},
+        {k: "continue = boucle continue ?", v: "Oui, juste une itération sautée ✅"},
+      ],
+      conclusion: "break = 'j'arrête tout'. continue = 'je saute ce tour, je continue'."
+    }
+  },
+  10: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Les index commencent à 0</div>
+        <div class="es-content">En Python (et dans la plupart des langages), les listes sont <b>numérotées à partir de 0</b>. Pas 1 ! Le 1er élément est à l'index 0, le 2ème à l'index 1, etc.</div>
+      </div>
+      <div class="formula-pill">prenoms[0]="Alice"  [1]="Bob"  [2]="Charlie"  [3]="David"</div>
+      <div class="why-box"><b>Méthodes utiles du TP5 :</b> <code>prenoms.index("Charlie")</code> → retourne <b>2</b>. <code>len(prenoms)</code> → retourne <b>4</b> (la longueur, pas le dernier index).</div>`,
+    exemple: {
+      titre: "📋 Liste prenoms — mapping index/valeur",
+      lignes: [
+        {k: 'prenoms[0]', v: '"Alice"'},
+        {k: 'prenoms[1]', v: '"Bob"'},
+        {k: 'prenoms[2]', v: '"Charlie" ← index 2 ✅'},
+        {k: 'prenoms[3]', v: '"David"'},
+        {k: 'prenoms.index("Charlie")', v: "2", result: true},
+        {k: 'prenoms[-1]', v: '"David" (dernier)'},
+      ],
+      conclusion: "Dernier index = len(liste) - 1. Ici : 4 éléments → dernier index = 3."
+    }
+  },
+  11: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 pop() puis sort() — étape par étape</div>
+        <div class="es-content">Il faut simuler l'exécution ligne par ligne. <b>pop()</b> sans argument supprime ET retourne le <b>dernier élément</b>. <b>sort()</b> trie par ordre croissant <b>sur place</b>.</div>
+      </div>
+      <div class="code-block">nombres = [12, 45, 78, 23, 56]  # départ
+nombres.pop()                   # supprime 56 → [12, 45, 78, 23]
+nombres.sort()                  # trie → [12, 23, 45, 78] ✅</div>
+      <div class="why-box"><b>Piège :</b> pop() supprime le <b>dernier</b> (56), pas le plus grand. Après pop → [12, 45, 78, 23]. Après sort → [12, 23, 45, 78]. Pas [12, 23, 45, 56, 78] !</div>`,
+    exemple: {
+      titre: "📋 Simulation pas à pas — TP5 Exercice 1",
+      lignes: [
+        {k: "Départ", v: "[12, 45, 78, 23, 56]"},
+        {k: "Après pop()  ← supprime 56", v: "[12, 45, 78, 23]"},
+        {k: "Après sort()  ← tri croissant", v: "[12, 23, 45, 78] ✅", result: true},
+        {k: "sort() modifie la liste ?", v: "Oui, sur place (in-place)"},
+        {k: "pop() retourne quoi ?", v: "56 (l'élément retiré)"},
+      ],
+      conclusion: "sort() ne retourne rien (None), il modifie la liste directement."
+    }
+  },
+  12: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 append() vs insert()</div>
+        <div class="es-content">
+          <b>append(valeur)</b> → ajoute <b>toujours à la fin</b>. Un seul paramètre.<br>
+          <b>insert(index, valeur)</b> → ajoute <b>à la position voulue</b>. Deux paramètres : où et quoi.
+        </div>
+      </div>
+      <div class="code-block"># TP5 - Exercice 1 :
+nombres = [12, 45, 78, 23, 56]
+nombres.append(34)      # → [12, 45, 78, 23, 56, 34] (fin)
+nombres.insert(1, 99)   # → [12, 99, 45, 78, 23, 56, 34] (position 1)</div>
+      <div class="why-box"><b>Attention à insert(1, 99) :</b> l'index <b>1</b> correspond à la <b>2ème position</b> (car on commence à 0). L'élément existant à cet index est décalé vers la droite.</div>`,
+    exemple: {
+      titre: "🔧 Méthodes des listes — Récap TP5",
+      lignes: [
+        {k: "append(valeur)", v: "Ajoute à la FIN"},
+        {k: "insert(index, valeur)", v: "Ajoute à une position précise"},
+        {k: "pop()", v: "Supprime et retourne le dernier"},
+        {k: "sort()", v: "Trie par ordre croissant"},
+        {k: "reverse()", v: "Inverse l'ordre"},
+        {k: "count(valeur)", v: "Compte les occurrences", result: true},
+      ],
+      conclusion: "insert(1, 99) → 99 devient le 2ème élément (index 1)."
+    }
+  },
+  13: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 return vs print — la différence clé</div>
+        <div class="es-content"><b>print()</b> affiche quelque chose à l'écran mais ne retourne rien. <b>return</b> renvoie une valeur au code qui a appelé la fonction. Sans return, Python retourne <b>None</b> automatiquement.</div>
+      </div>
+      <div class="code-block">def saluer(prenom):
+    print("Bonjour " + prenom)  ← affiche à l'écran
+    # pas de return
+
+resultat = saluer("Alice")
+# Affiche : "Bonjour Alice"
+print(resultat)  # Affiche : None ← pas de return !</div>
+      <div class="why-box"><b>Dans le TP5 :</b> <code>calculer_aire</code> utilisait <code>return longueur * largeur</code> — ça <b>retourne</b> la valeur pour qu'on puisse l'utiliser : <code>aire = calculer_aire(5, 3)</code>.</div>`,
+    exemple: {
+      titre: "⚙️ print vs return — TP5 Exercice 3",
+      lignes: [
+        {k: "def f(): print('Bonjour')", v: ""},
+        {k: "résultat = f()", v: 'Affiche "Bonjour"'},
+        {k: "print(résultat)", v: "None ← pas de return"},
+        {k: "def f(): return 42", v: ""},
+        {k: "résultat = f()", v: "42 ← capturé ✅", result: true},
+      ],
+      conclusion: "print = affiche. return = donne une valeur à utiliser dans le code."
+    }
+  },
+  14: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Paramètre vs Argument</div>
+        <div class="es-content">
+          <b>Paramètre</b> → c'est le nom dans la <b>définition</b> de la fonction (le modèle).<br>
+          <b>Argument</b> → c'est la <b>valeur réelle</b> qu'on passe lors de l'<b>appel</b>.
+        </div>
+      </div>
+      <div class="code-block"># Définition → longueur et largeur sont des PARAMÈTRES
+def calculer_aire(longueur, largeur):
+    return longueur * largeur
+
+# Appel → 5 et 3 sont des ARGUMENTS
+aire = calculer_aire(5, 3)</div>
+      <div class="why-box"><b>Analogie :</b> la définition est une <b>recette</b> (paramètres = ingrédients en général). L'appel est la <b>préparation</b> (arguments = les vrais ingrédients qu'on utilise ce jour-là).</div>`,
+    exemple: {
+      titre: "⚙️ Paramètre vs Argument — TP5",
+      lignes: [
+        {k: "def calculer_aire(longueur, largeur)", v: "longueur, largeur = PARAMÈTRES"},
+        {k: "calculer_aire(5, 3)", v: "5, 3 = ARGUMENTS"},
+        {k: "À l'intérieur de la fonction", v: "longueur=5, largeur=3"},
+        {k: "return longueur * largeur", v: "return 5 * 3 = 15 ✅", result: true},
+      ],
+      conclusion: "Les paramètres reçoivent les arguments lors de l'appel."
+    }
+  },
+  15: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">🔑 Retourner plusieurs valeurs</div>
+        <div class="es-content">En Python, <code>return a, b</code> retourne un <b>tuple</b> (un couple de valeurs). On récupère les deux valeurs séparément grâce au <b>déballage de tuple</b> (tuple unpacking).</div>
+      </div>
+      <div class="code-block"># TP5 - Exercice 3B :
+def calculer_rectangle(longueur, largeur):
+    aire = longueur * largeur
+    perimetre = 2 * (longueur + largeur)
+    return aire, perimetre  ← retourne un tuple (aire, perimetre)
+
+# Récupération par déballage :
+aire, perimetre = calculer_rectangle(2, 3)  ✅
+# aire = 6.0,  perimetre = 10.0</div>
+      <div class="why-box"><b>Alternative valide :</b> <code>result = calculer_rectangle(2,3)</code> puis <code>result[0]</code> et <code>result[1]</code>. Mais le déballage <code>a, b = ...</code> est plus lisible et c'est ce qu'on a vu en TP.</div>`,
+    exemple: {
+      titre: "⚙️ Tuple unpacking — TP5 Exercice 3B",
+      lignes: [
+        {k: "Appel : calculer_rectangle(2, 3)", v: ""},
+        {k: "return aire, perimetre", v: "retourne (6.0, 10.0)"},
+        {k: "aire, perimetre = (6.0, 10.0)", v: "déballage ✅"},
+        {k: "print(aire)", v: "6.0"},
+        {k: "print(perimetre)", v: "10.0 ✅", result: true},
+      ],
+      conclusion: "N variables à gauche = N valeurs retournées à droite. Les positions matchent."
+    }
+  }
+};
+
+function buildExemple(ex) {
+  if (!ex) return '';
+  let rows = ex.lignes.map(l => {
+    let val = l.v ? `<span class="ex-v">${l.v}</span>` : '';
+    return `<div class="ex-row ${l.result?'ex-result':''}"><span class="ex-k">${l.k}</span>${val}</div>`;
+  }).join('');
+  return `<div class="example-block"><div style="font-size:0.8rem;font-weight:700;color:#fb923c;margin-bottom:8px;">${ex.titre}</div>${rows}${ex.conclusion?`<div style="margin-top:10px;font-size:0.83rem;color:#94a3b8;border-top:1px solid #1e293b;padding-top:8px;">${ex.conclusion}</div>`:''}</div>`;
+}
+
+function startQuiz() {
+  document.querySelector('.intro-box').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'flex';
+  document.getElementById('quizContainer').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setConf(qNum, conf, btn) {
+  if (confs[qNum]) return;
+  confs[qNum] = conf;
+  btn.parentElement.querySelectorAll('.conf-btn').forEach(b => {
+    b.classList.add('disabled');
+    b.classList.remove('sel');
+  });
+  btn.classList.remove('disabled');
+  btn.classList.add('sel');
+  const opts = document.querySelector(`[data-q="${qNum}"]`);
+  opts.querySelectorAll('.option').forEach(o => o.classList.add('unlocked'));
+}
+
+function choose(optEl, qNum) {
+  if (!confs[qNum]) return;
+  if (results[qNum] !== undefined) return;
+  const container = optEl.parentElement;
+  const correct = parseInt(container.dataset.correct);
+  const opts = container.querySelectorAll('.option');
+  const chosen = Array.from(opts).indexOf(optEl) + 1;
+  const isCorrect = chosen === correct;
+  results[qNum] = isCorrect;
+  opts.forEach((o, i) => {
+    o.classList.add('locked');
+    o.classList.remove('unlocked');
+    if (i + 1 === correct) o.classList.add('correct');
+    else if (o === optEl && !isCorrect) o.classList.add('wrong');
+  });
+  if (isCorrect) score++;
+  answered++;
+  document.getElementById('scoreDisplay').textContent = `${score} / ${TOTAL}`;
+  document.getElementById('progressFill').style.width = `${(answered/TOTAL)*100}%`;
+  document.getElementById('progressText').textContent = `${answered} / ${TOTAL}`;
+  document.getElementById('card-' + qNum).classList.add('answered');
+  showMetaFeedback(qNum, isCorrect, confs[qNum], container.dataset.topic);
+  if (answered === TOTAL) setTimeout(showDashboard, 800);
+}
+
+function showMetaFeedback(qNum, isCorrect, conf, topic) {
+  const mf = document.getElementById('mf-' + qNum);
+  let cls, title, body, reflect = false;
+  if (isCorrect && conf === 'sure') { cls='mf-mastered'; title='✅ Maîtrisé !'; body='Tu connaissais et tu avais raison. Continue comme ça !'; }
+  else if (isCorrect && conf === 'maybe') { cls='mf-growth'; title='📈 En progression !'; body='Tu avais la bonne intuition. Lis l\'explication pour bien ancrer ça.'; reflect=true; }
+  else if (isCorrect && conf === 'guess') { cls='mf-lucky'; title='🍀 Bonne réponse... par chance ?'; body='Tu as trouvé le bon choix mais tu n\'étais pas sûr·e. Lis bien l\'explication.'; reflect=true; }
+  else if (!isCorrect && conf === 'sure') { cls='mf-blind'; title='⚠️ Point aveugle !'; body='Tu étais sûr·e mais c\'était faux. C\'est le type d\'erreur le plus risqué en exam. Lis bien l\'explication.'; reflect=true; }
+  else if (!isCorrect && conf === 'maybe') { cls='mf-known-gap'; title='📚 Gap connu'; body='Tu doutais, tu avais raison de douter. Lis l\'explication et revois ce point.'; reflect=true; }
+  else { cls='mf-gap'; title='📖 À retravailler'; body='Tu ne connaissais pas et tu n\'as pas trouvé. C\'est normal — lis l\'explication attentivement.'; reflect=true; }
+  const exp = explanations[qNum];
+  const exempleHtml = exp && exp.exemple ? buildExemple(exp.exemple) : '';
+  let html = `<div class="${cls}"><div class="mf-title">${title}</div><div class="mf-body">${body}</div></div>
+  <div class="explain-box"><div class="ex-title">📚 Explication complète</div>${exp ? exp.state : ''}${exempleHtml}</div>`;
+  if (reflect) {
+    html += `<div class="reflect-prompt"><p>💭 Maintenant que tu as vu l'explication :</p>
+    <select class="reflect-select"><option value="">— Sélectionne ton ressenti</option>
+    <option>Je comprends maintenant, c'était une erreur d'inattention</option>
+    <option>Je comprends le concept, je dois juste le pratiquer</option>
+    <option>C'est encore flou, je dois revoir le TP</option>
+    <option>Je vais retester ça dans Jupyter Notebook</option>
+    </select></div>`;
+  }
+  mf.innerHTML = html;
+  mf.classList.add('show');
+}
+
+function showDashboard() {
+  document.getElementById('scoreBar').style.display = 'none';
+  document.getElementById('quizContainer').style.display = 'none';
+  const dash = document.getElementById('dashboard');
+  dash.style.display = 'block';
+
+  document.getElementById('dashScore').textContent = `${score}/15`;
+  const pct = Math.round((score/15)*100);
+  let lvl = pct >= 80 ? '🔥 Excellent niveau Python !' : pct >= 60 ? '📈 Bon niveau, quelques lacunes à combler' : pct >= 40 ? '📚 En cours d\'apprentissage — continue !' : '🌱 Les bases à retravailler prioritairement';
+  document.getElementById('dashSub').textContent = `${pct}% de bonnes réponses — ${lvl}`;
+
+  const cats = {
+    mastered: { items: [], label: '✅ Maîtrisé', cls: 'dc-mastered', icon: '🏆', dot: '#10b981' },
+    growth: { items: [], label: '📈 Presque maîtrisé', cls: 'dc-growth', icon: '📈', dot: '#4ade80' },
+    blind: { items: [], label: '⚠️ Point aveugle', cls: 'dc-blind', icon: '⚠️', dot: '#f97316' },
+    gap: { items: [], label: '📖 À retravailler', cls: 'dc-gap', icon: '📖', dot: '#f87171' },
+  };
+  for (let q = 1; q <= TOTAL; q++) {
+    const isC = results[q];
+    const conf = confs[q];
+    const topic = document.querySelector(`[data-q="${q}"]`)?.dataset.topic || `Q${q}`;
+    if (isC && conf === 'sure') cats.mastered.items.push(topic);
+    else if (isC) cats.growth.items.push(topic);
+    else if (!isC && conf === 'sure') cats.blind.items.push(topic);
+    else cats.gap.items.push(topic);
+  }
+
+  const grid = document.getElementById('dashGrid');
+  grid.innerHTML = Object.entries(cats).map(([k, c]) => `
+    <div class="dash-card ${c.cls}">
+      <div class="dc-header"><div class="dc-icon">${c.icon}</div><div class="dc-title">${c.label}</div></div>
+      <div class="dc-count">${c.items.length}</div>
+      <div class="dc-desc">${k==='mastered'?'Notions bien comprises':k==='growth'?'Bonnes réponses avec doute':k==='blind'?'Sûr·e mais faux — danger !':'Erreurs à corriger'}</div>
+      <div class="topic-list">${c.items.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:${c.dot}"></div>${t}</div>`).join('')}</div>
+    </div>`).join('');
+
+  const blindItems = cats.blind.items;
+  const gapItems = cats.gap.items;
+  const growthItems = cats.growth.items;
+  let steps = '';
+
+  if (blindItems.length > 0) {
+    steps += `<div class="plan-step"><div class="plan-num pn-1">1</div><div class="plan-content">
+    <b>🚨 PRIORITÉ 1 — Points aveugles (tu croyais savoir)</b><br>
+    Retourne dans Jupyter Notebook et <b>teste ces notions concrètement</b> :<br>
+    ${blindItems.map(t=>`→ <b>${t}</b>`).join('<br>')}
+    </div></div>`;
+  }
+  if (gapItems.length > 0) {
+    steps += `<div class="plan-step"><div class="plan-num pn-2">2</div><div class="plan-content">
+    <b>📖 PRIORITÉ 2 — Revoir les TPs correspondants</b><br>
+    ${gapItems.map(t=>`→ <b>${t}</b>`).join('<br>')}
+    </div></div>`;
+  }
+  if (growthItems.length > 0) {
+    steps += `<div class="plan-step"><div class="plan-num pn-3">3</div><div class="plan-content">
+    <b>🎯 PRIORITÉ 3 — Ancrer ce qui est presque maîtrisé</b><br>
+    Pratique dans Jupyter Notebook :<br>
+    ${growthItems.map(t=>`→ <b>${t}</b>`).join('<br>')}
+    </div></div>`;
+  }
+  if (!steps) {
+    steps = `<div class="plan-step"><div class="plan-num pn-3">🏆</div><div class="plan-content"><b>Félicitations ! Tu maîtrises toutes les notions Python du cours.</b><br>Essaie maintenant de créer de petits projets combinant listes + boucles + fonctions.</div></div>`;
+  }
+  document.getElementById('planSteps').innerHTML = steps;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
