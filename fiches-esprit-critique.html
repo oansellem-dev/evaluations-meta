@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiches Esprit Critique — Sources, Citations & Auteurs</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #1a0008, #0d0d1a);
+  padding: 36px 20px 28px; text-align: center;
+  border-bottom: 3px solid #e11d48;
+}
+.hero h1 { font-size: 1.8rem; color: #fb7185; margin-bottom: 6px; }
+.hero .sub { color: #94a3b8; font-size: 0.9rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+.tip-bar {
+  background: #1a0a00; border-bottom: 1px solid #7c2d12;
+  padding: 10px 24px; text-align: center;
+  font-size: 0.82rem; color: #fbbf24;
+}
+
+.nav {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  padding: 18px 16px; background: #0d1117; border-bottom: 1px solid #1e293b;
+  position: sticky; top: 0; z-index: 50;
+}
+.nav a {
+  padding: 6px 14px; border-radius: 20px; text-decoration: none;
+  font-size: 0.78rem; font-weight: 700; transition: all .2s;
+}
+.nav a:hover { transform: translateY(-1px); }
+.n1 { background: #1a0008; color: #fb7185; border: 1px solid #881337; }
+.n2 { background: #0c2847; color: #38bdf8; border: 1px solid #1e40af; }
+.n3 { background: #1e1b4b; color: #a78bfa; border: 1px solid #4c1d95; }
+.n4 { background: #1c1500; color: #fbbf24; border: 1px solid #92400e; }
+.n5 { background: #052e16; color: #34d399; border: 1px solid #065f46; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* SECTION */
+.section { margin-bottom: 40px; }
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; border-radius: 14px 14px 0 0;
+  margin-bottom: 0;
+}
+.s1-header { background: linear-gradient(135deg, #1a0008, #2a0010); border: 2px solid #e11d48; border-bottom: none; }
+.s2-header { background: linear-gradient(135deg, #020c1b, #0c2847); border: 2px solid #3b82f6; border-bottom: none; }
+.s3-header { background: linear-gradient(135deg, #0f0b2e, #1e1b4b); border: 2px solid #7c3aed; border-bottom: none; }
+.s4-header { background: linear-gradient(135deg, #1a1000, #1c1500); border: 2px solid #d97706; border-bottom: none; }
+.s5-header { background: linear-gradient(135deg, #021a0e, #052e16); border: 2px solid #10b981; border-bottom: none; }
+.sh-icon { font-size: 2rem; }
+.sh-text h2 { font-size: 1.2rem; font-weight: 800; }
+.sh-text p { font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
+.s1-header h2 { color: #fb7185; }
+.s2-header h2 { color: #60a5fa; }
+.s3-header h2 { color: #a78bfa; }
+.s4-header h2 { color: #fbbf24; }
+.s5-header h2 { color: #34d399; }
+
+.section-body {
+  border-radius: 0 0 14px 14px; overflow: hidden;
+}
+.s1-body { border: 2px solid #e11d48; border-top: none; }
+.s2-body { border: 2px solid #3b82f6; border-top: none; }
+.s3-body { border: 2px solid #7c3aed; border-top: none; }
+.s4-body { border: 2px solid #d97706; border-top: none; }
+.s5-body { border: 2px solid #10b981; border-top: none; }
+
+/* CARDS INSIDE SECTION */
+.fiche-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+@media(max-width:640px){ .fiche-grid { grid-template-columns: 1fr; } }
+.fiche-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+@media(max-width:700px){ .fiche-grid.three { grid-template-columns: 1fr; } }
+
+.fiche-block {
+  padding: 18px 20px;
+  border-right: 1px solid #1e293b;
+  border-bottom: 1px solid #1e293b;
+}
+.fiche-block:nth-child(2n) { border-right: none; }
+.fiche-grid.three .fiche-block:nth-child(2n) { border-right: 1px solid #1e293b; }
+.fiche-grid.three .fiche-block:nth-child(3n) { border-right: none; }
+.fiche-block:last-child, .fiche-block:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.fiche-block.full { grid-column: 1 / -1; border-right: none; }
+
+.fb-label {
+  font-size: 0.67rem; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.fb-label::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.2; }
+
+/* Couleur par section */
+.s1 .fb-label { color: #fb7185; }
+.s2 .fb-label { color: #60a5fa; }
+.s3 .fb-label { color: #a78bfa; }
+.s4 .fb-label { color: #fbbf24; }
+.s5 .fb-label { color: #34d399; }
+
+/* DEF BOX */
+.def-box {
+  background: #0d1117; border-radius: 8px; padding: 12px 14px;
+  font-size: 0.88rem; color: #e2e8f0; line-height: 1.7; margin-bottom: 10px;
+}
+.def-box b { color: #f1f5f9; }
+.def-box em { font-style: normal; opacity: 0.7; font-size: 0.83rem; }
+
+/* AUTEUR CARD */
+.auteur {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: #0d1117; border-radius: 8px; padding: 12px;
+  margin-bottom: 8px;
+}
+.auteur-avatar {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0; font-weight: 900;
+  font-family: Georgia, serif;
+}
+.auteur-info .auteur-name { font-size: 0.88rem; font-weight: 700; color: #f1f5f9; }
+.auteur-info .auteur-date { font-size: 0.72rem; color: #64748b; margin-bottom: 4px; }
+.auteur-info .auteur-contrib { font-size: 0.8rem; color: #94a3b8; line-height: 1.5; }
+.auteur-info .auteur-contrib b { color: #cbd5e1; }
+
+/* CITATION */
+.citation {
+  background: #0d1117; border-left: 3px solid currentColor;
+  border-radius: 0 8px 8px 0; padding: 12px 14px; margin-bottom: 8px;
+}
+.citation .cite-text {
+  font-size: 0.87rem; color: #e2e8f0; line-height: 1.65;
+  font-style: italic; margin-bottom: 6px;
+}
+.citation .cite-text::before { content: '" '; opacity: 0.5; }
+.citation .cite-text::after { content: ' "'; opacity: 0.5; }
+.citation .cite-from { font-size: 0.72rem; color: #64748b; font-weight: 600; }
+
+.s1 .citation { border-color: #e11d48; }
+.s2 .citation { border-color: #3b82f6; }
+.s3 .citation { border-color: #7c3aed; }
+.s4 .citation { border-color: #d97706; }
+.s5 .citation { border-color: #10b981; }
+
+/* EXEMPLE TAG */
+.exemple-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px; margin-bottom: 6px;
+}
+.s1 .exemple-tag { background: #1a0008; color: #fb7185; }
+.s2 .exemple-tag { background: #0c2847; color: #60a5fa; }
+.s3 .exemple-tag { background: #1e1b4b; color: #a78bfa; }
+.s4 .exemple-tag { background: #1c1500; color: #fbbf24; }
+.s5 .exemple-tag { background: #052e16; color: #34d399; }
+
+/* PHRASE CLÉS */
+.phrase-list { display: flex; flex-direction: column; gap: 6px; }
+.phrase-item {
+  background: #0d1117; border-radius: 7px; padding: 9px 12px;
+  font-size: 0.82rem; color: #cbd5e1; line-height: 1.55;
+  border-left: 2px solid transparent;
+}
+.s1 .phrase-item { border-color: #e11d48; }
+.s2 .phrase-item { border-color: #3b82f6; }
+.s3 .phrase-item { border-color: #7c3aed; }
+.s4 .phrase-item { border-color: #d97706; }
+.s5 .phrase-item { border-color: #10b981; }
+.phrase-item b { color: #e2e8f0; }
+
+/* EXEMPLES CONCRETS */
+.ex-list { display: flex; flex-direction: column; gap: 6px; }
+.ex-item {
+  background: #0d1117; border-radius: 7px; padding: 9px 12px;
+  font-size: 0.82rem; line-height: 1.55;
+}
+.ex-item .ex-name { font-weight: 700; font-size: 0.8rem; margin-bottom: 3px; }
+.ex-item .ex-desc { color: #94a3b8; }
+.s1 .ex-item .ex-name { color: #fb7185; }
+.s2 .ex-item .ex-name { color: #60a5fa; }
+.s3 .ex-item .ex-name { color: #a78bfa; }
+.s4 .ex-item .ex-name { color: #fbbf24; }
+.s5 .ex-item .ex-name { color: #34d399; }
+
+/* MOTS-CLÉS CHIPS */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: 600;
+  background: #1f2937; color: #94a3b8; border: 1px solid #374151;
+}
+.chip.key { color: #e2e8f0; border-color: #4b5563; }
+
+/* SCHEMA */
+.schema {
+  background: #0d1117; border-radius: 8px; padding: 14px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+.schema-step {
+  background: #1f2937; border-radius: 6px; padding: 6px 12px;
+  font-weight: 600; color: #e2e8f0; text-align: center;
+}
+.schema-arrow { color: #64748b; font-size: 1rem; }
+
+/* PRINT */
+@media print {
+  body { background: white; color: black; }
+  .nav, .tip-bar { display: none; }
+  .fiche-block { background: white; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>📚 Fiches Esprit Critique</h1>
+  <p class="sub">Auteurs à citer · Citations exactes · Exemples concrets · Phrases types pour ta copie</p>
+</div>
+
+<div class="tip-bar">
+  💡 Conseil d'Aissa : <strong>argumente bien, cite des références personnelles ou théoriques, prends ton temps pour rédiger</strong>
+</div>
+
+<nav class="nav">
+  <a href="#biais" class="nav a n1">🧠 Biais cognitifs</a>
+  <a href="#systeme" class="nav a n2">⚡ Système 1 & 2</a>
+  <a href="#stereo" class="nav a n3">👁️ Stéréotypes</a>
+  <a href="#sources" class="nav a n4">📰 Sources d'info</a>
+  <a href="#ethique" class="nav a n5">⚖️ Éthique & Morale</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 1 — BIAIS COGNITIFS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section s1" id="biais">
+  <div class="section-header s1-header">
+    <div class="sh-icon">🧠</div>
+    <div class="sh-text"><h2>Biais Cognitifs</h2><p>Définitions · Auteurs · Citations · Exemples à citer</p></div>
+  </div>
+  <div class="section-body s1-body">
+    <div class="fiche-grid">
+
+      <!-- Définition -->
+      <div class="fiche-block">
+        <div class="fb-label">📖 Définition exacte</div>
+        <div class="def-box">
+          Un <b>biais cognitif</b> est une <b>déviation systématique et inconsciente</b> de la pensée rationnelle. C'est un raccourci mental (heuristique) qui influence nos perceptions, jugements et décisions <b>sans que nous en ayons conscience</b>.
+          <br><br><em>→ Retiens : systématique + inconscient + déviation du raisonnement rationnel</em>
+        </div>
+        <div class="chips">
+          <span class="chip key">Heuristique</span>
+          <span class="chip key">Inconscient</span>
+          <span class="chip key">Systématique</span>
+          <span class="chip">Raccourci mental</span>
+          <span class="chip">Jugement faussé</span>
+        </div>
+      </div>
+
+      <!-- Auteurs -->
+      <div class="fiche-block">
+        <div class="fb-label">👤 Auteurs à citer</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#2a0010;color:#fb7185;">K</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Daniel Kahneman</div>
+            <div class="auteur-date">Psychologue israélo-américain · Prix Nobel d'Économie 2002</div>
+            <div class="auteur-contrib">Ouvrage clé : <b>"Système 1 / Système 2 : Les deux vitesses de la pensée"</b> (2011). Il a formalisé les biais cognitifs et leur lien avec les deux systèmes de pensée.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#2a0010;color:#fb7185;">T</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Amos Tversky</div>
+            <div class="auteur-date">Psychologue cognitif · Collaborateur de Kahneman</div>
+            <div class="auteur-contrib">Avec Kahneman, il a <b>découvert et nommé</b> des dizaines de biais cognitifs (biais d'ancrage, biais de disponibilité, théorie des perspectives).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="fiche-block">
+        <div class="fb-label">💬 Citations à utiliser</div>
+        <div class="citation">
+          <div class="cite-text">Nous sommes aveuglés par ce que nous savons.</div>
+          <div class="cite-from">— Daniel Kahneman, Système 1 / Système 2 (2011)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">La confiance que les individus ont en leurs croyances dépend principalement de la qualité de l'histoire qu'ils peuvent raconter sur ce qu'ils voient, même si ce qu'ils voient est peu.</div>
+          <div class="cite-from">— Daniel Kahneman</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Un biais cognitif est une erreur de jugement reproductible, liée au fonctionnement de la mémoire, à l'attention ou à d'autres processus mentaux.</div>
+          <div class="cite-from">— Définition académique (psychologie cognitive)</div>
+        </div>
+      </div>
+
+      <!-- 3 biais à connaître -->
+      <div class="fiche-block">
+        <div class="fb-label">🎯 Les 3 biais incontournables</div>
+        <div class="ex-list">
+          <div class="ex-item">
+            <div class="ex-name">Biais de confirmation</div>
+            <div class="ex-desc">On recherche et retient les infos qui <b>confirment ce qu'on croit déjà</b>. Ex : quelqu'un convaincu que les vaccins sont dangereux ne lira que les articles qui vont dans ce sens.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Biais d'ancrage</div>
+            <div class="ex-desc">La <b>première information reçue</b> influence trop tous les jugements suivants. Ex : un prix barré à 500€ fait paraître 299€ comme une bonne affaire.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Biais de disponibilité</div>
+            <div class="ex-desc">On surestime la probabilité des événements <b>faciles à imaginer</b>. Ex : après un attentat médiatisé, les gens surestiment le risque terroriste par rapport aux accidents de voiture.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrases types -->
+      <div class="fiche-block full">
+        <div class="fb-label">✍️ Phrases types pour ta copie</div>
+        <div class="phrase-list">
+          <div class="phrase-item">Comme le démontre <b>Daniel Kahneman</b> dans ses travaux sur les biais cognitifs, notre cerveau a tendance à <b>prendre des raccourcis</b> qui faussent nos jugements de façon systématique et inconsciente.</div>
+          <div class="phrase-item">Le <b>biais de confirmation</b> illustre parfaitement comment nous construisons une réalité subjective en sélectionnant les informations qui renforcent nos croyances préexistantes.</div>
+          <div class="phrase-item">Ces biais ne sont pas des signes d'intelligence limitée — ils affectent <b>tout le monde, y compris les experts</b>. La clé est d'en être conscient pour mieux les corriger.</div>
+          <div class="phrase-item">Pour exercer son esprit critique, il est indispensable d'<b>identifier ses propres biais</b> avant de juger une situation ou de prendre une décision.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 2 — SYSTÈME 1 & 2 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section s2" id="systeme">
+  <div class="section-header s2-header">
+    <div class="sh-icon">⚡</div>
+    <div class="sh-text"><h2>Système 1 (Rapide) &amp; Système 2 (Lent)</h2><p>Théorie de Kahneman — Les deux modes de pensée</p></div>
+  </div>
+  <div class="section-body s2-body">
+    <div class="fiche-grid">
+
+      <!-- Définitions -->
+      <div class="fiche-block">
+        <div class="fb-label">📖 Les deux systèmes</div>
+        <div class="def-box" style="margin-bottom:8px;">
+          <b>Système 1 (rapide)</b> → automatique, intuitif, inconscient, sans effort. Réagit en millisecondes. Produit des jugements instantanés. <b>Source principale des biais cognitifs.</b>
+          <br><em>→ Le pilote automatique</em>
+        </div>
+        <div class="def-box">
+          <b>Système 2 (lent)</b> → conscient, logique, analytique, demande un effort mental. Intervient pour les problèmes complexes. Peut <b>corriger les erreurs du Système 1</b>.
+          <br><em>→ Le pilote conscient (mais paresseux)</em>
+        </div>
+        <div class="schema">
+          <div class="schema-step">Stimulus</div>
+          <div class="schema-arrow">→</div>
+          <div class="schema-step" style="background:#1a1a2e;color:#60a5fa;">Système 1<br><small>réflexe</small></div>
+          <div class="schema-arrow">⚠️</div>
+          <div class="schema-step" style="background:#0c2847;color:#93c5fd;">Système 2<br><small>vérifie</small></div>
+          <div class="schema-arrow">→</div>
+          <div class="schema-step">Décision</div>
+        </div>
+      </div>
+
+      <!-- Auteur -->
+      <div class="fiche-block">
+        <div class="fb-label">👤 Auteur principal</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#0c2847;color:#60a5fa;">K</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Daniel Kahneman</div>
+            <div class="auteur-date">"Thinking, Fast and Slow" (2011) — traduit en français : "Système 1 / Système 2 : Les deux vitesses de la pensée"</div>
+            <div class="auteur-contrib">Ce livre best-seller mondial explique <b>pourquoi nous prenons de mauvaises décisions</b> malgré notre intelligence. Il a révolutionné l'économie comportementale.</div>
+          </div>
+        </div>
+        <div class="fb-label" style="margin-top:12px;">📖 Concept lié</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#0c2847;color:#60a5fa;">T</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Richard Thaler & Cass Sunstein</div>
+            <div class="auteur-date">Économistes comportementaux · "Nudge" (2008)</div>
+            <div class="auteur-contrib">Ils montrent comment <b>exploiter le Système 1</b> pour orienter les comportements vers de meilleures décisions ("coups de pouce").</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="fiche-block">
+        <div class="fb-label">💬 Citations</div>
+        <div class="citation">
+          <div class="cite-text">Le Système 1 est rapide, instinctif et émotionnel. Le Système 2 est plus lent, plus délibératif et plus logique.</div>
+          <div class="cite-from">— Daniel Kahneman, Thinking, Fast and Slow (2011)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Rien dans la vie n'est aussi important que vous le pensez au moment où vous y pensez.</div>
+          <div class="cite-from">— Daniel Kahneman (biais de focalisation)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Ce n'est pas notre ignorance qui nous met en danger, c'est notre certitude de savoir des choses qui ne sont pas vraies.</div>
+          <div class="cite-from">— Attribué à Mark Twain (illustre le Système 1)</div>
+        </div>
+      </div>
+
+      <!-- Exemples -->
+      <div class="fiche-block">
+        <div class="fb-label">🎯 Exemples concrets à citer</div>
+        <div class="ex-list">
+          <div class="ex-item">
+            <div class="ex-name">Le test batte + balle (Kahneman)</div>
+            <div class="ex-desc">Batte + balle = 1,10€. La batte coûte 1€ de plus. Le S1 répond "10 centimes" (faux). Le S2 réfléchit : la réponse est <b>5 centimes</b>.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Premier regard sur quelqu'un</div>
+            <div class="ex-desc">En 100 millisecondes, le Système 1 forge une impression sur la fiabilité d'un visage. Étude de <b>Willis & Todorov (2006)</b> — Princeton.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Réseaux sociaux & indignation</div>
+            <div class="ex-desc">Les contenus qui déclenchent une réaction émotionnelle immédiate (Système 1) sont plus partagés — <b>sans vérification</b> (Système 2 absent).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrases types -->
+      <div class="fiche-block full">
+        <div class="fb-label">✍️ Phrases types pour ta copie</div>
+        <div class="phrase-list">
+          <div class="phrase-item">Selon <b>Daniel Kahneman</b> (Thinking, Fast and Slow, 2011), notre pensée fonctionne selon deux systèmes : le <b>Système 1</b>, rapide et intuitif, et le <b>Système 2</b>, lent et analytique.</div>
+          <div class="phrase-item">La majorité de nos jugements quotidiens sont produits par le Système 1, ce qui explique pourquoi nous sommes si <b>vulnérables aux biais cognitifs</b> : ils opèrent en dehors de notre conscience.</div>
+          <div class="phrase-item">Exercer son esprit critique revient précisément à <b>activer volontairement le Système 2</b> — à ralentir, questionner et vérifier ce que le Système 1 nous suggère de croire.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 3 — STÉRÉOTYPES -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section s3" id="stereo">
+  <div class="section-header s3-header">
+    <div class="sh-icon">👁️</div>
+    <div class="sh-text"><h2>Stéréotypes, Préjugés &amp; Discrimination</h2><p>Définitions · Auteurs · Évolution historique</p></div>
+  </div>
+  <div class="section-body s3-body">
+    <div class="fiche-grid">
+
+      <!-- Définitions -->
+      <div class="fiche-block">
+        <div class="fb-label">📖 Les 3 niveaux</div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Stéréotype</b> = représentation <b>simplifiée, figée et généralisée</b> d'un groupe social (cognitif — niveau de la pensée).
+        </div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Préjugé</b> = <b>jugement affectif</b> (positif ou négatif) sur un groupe <em>avant</em> toute connaissance réelle (niveau de l'émotion).
+        </div>
+        <div class="def-box" style="margin-bottom:10px;">
+          <b>Discrimination</b> = <b>comportement inégalitaire</b> qui en découle concrètement (niveau de l'action).
+        </div>
+        <div class="schema">
+          <div class="schema-step" style="font-size:0.75rem;">Stéréotype<br><small>Image</small></div>
+          <div class="schema-arrow">→</div>
+          <div class="schema-step" style="font-size:0.75rem;">Préjugé<br><small>Émotion</small></div>
+          <div class="schema-arrow">→</div>
+          <div class="schema-step" style="font-size:0.75rem;">Discrimination<br><small>Action</small></div>
+        </div>
+      </div>
+
+      <!-- Auteurs -->
+      <div class="fiche-block">
+        <div class="fb-label">👤 Auteurs à citer</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1e1b4b;color:#a78bfa;">L</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Walter Lippmann</div>
+            <div class="auteur-date">Journaliste américain · "Public Opinion" (1922)</div>
+            <div class="auteur-contrib">Il a <b>inventé le terme "stéréotype"</b> dans son sens moderne. Il les décrit comme des "images dans nos têtes" qui simplifient une réalité complexe.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1e1b4b;color:#a78bfa;">B</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Simone de Beauvoir</div>
+            <div class="auteur-date">Philosophe française · "Le Deuxième Sexe" (1949)</div>
+            <div class="auteur-contrib">Elle analyse les <b>stéréotypes de genre</b> : "On ne naît pas femme, on le devient." — La féminité est une construction sociale, pas une nature.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1e1b4b;color:#a78bfa;">G</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Gordon Allport</div>
+            <div class="auteur-date">Psychologue américain · "The Nature of Prejudice" (1954)</div>
+            <div class="auteur-contrib">Il a établi la <b>distinction classique</b> entre stéréotype, préjugé et discrimination, et théorisé comment ils s'articulent.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="fiche-block">
+        <div class="fb-label">💬 Citations</div>
+        <div class="citation">
+          <div class="cite-text">On ne naît pas femme : on le devient.</div>
+          <div class="cite-from">— Simone de Beauvoir, Le Deuxième Sexe (1949) — illustre que les stéréotypes sont des constructions sociales</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Les stéréotypes sont les images dans nos têtes qui nous permettent d'économiser de l'énergie mentale, mais au prix d'une vision déformée du monde.</div>
+          <div class="cite-from">— Inspiré de Walter Lippmann, Public Opinion (1922)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Le préjugé est une opinion sans jugement.</div>
+          <div class="cite-from">— Voltaire, Dictionnaire philosophique (1764)</div>
+        </div>
+      </div>
+
+      <!-- Exemples évolution -->
+      <div class="fiche-block">
+        <div class="fb-label">📅 Exemples d'évolution des stéréotypes</div>
+        <div class="ex-list">
+          <div class="ex-item">
+            <div class="ex-name">Stéréotypes de genre</div>
+            <div class="ex-desc">Au XIXe s. : "les femmes sont trop émotionnelles pour voter." Aujourd'hui : stéréotype largement déconstruit grâce aux luttes féministes et aux lois.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Représentation LGBTQ+</div>
+            <div class="ex-desc">Le stéréotype de "maladie mentale" (classifié comme tel par l'OMS jusqu'en <b>1990</b>) a évolué. En France, le mariage pour tous est légal depuis <b>2013</b>.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Stéréotypes raciaux</div>
+            <div class="ex-desc">L'esclavage était justifié par des stéréotypes "scientifiques" au XVIIIe s. Son abolition (France : <b>1848</b>) montre que les mœurs peuvent radicalement évoluer.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrases types -->
+      <div class="fiche-block full">
+        <div class="fb-label">✍️ Phrases types pour ta copie</div>
+        <div class="phrase-list">
+          <div class="phrase-item">Comme l'a théorisé <b>Walter Lippmann</b> dès 1922, les stéréotypes sont des "images dans nos têtes" — des représentations simplifiées qui nous permettent de catégoriser rapidement, mais au prix d'une vision appauvrie de la réalité.</div>
+          <div class="phrase-item">Les stéréotypes ne sont pas des vérités universelles : ce sont des <b>constructions sociales et historiques</b>, comme le montre leur évolution dans le temps. Ce qui était un stéréotype dominant hier peut être déconstruit demain.</div>
+          <div class="phrase-item"><b>Simone de Beauvoir</b> l'illustre parfaitement : "On ne naît pas femme, on le devient." La féminité telle qu'on la conçoit est un <b>ensemble de stéréotypes intégrés par la socialisation</b>, non une essence naturelle.</div>
+          <div class="phrase-item">Il est crucial de distinguer stéréotype, préjugé et discrimination — car si le premier est une image mentale parfois inconsciente, la discrimination est un <b>acte concret aux conséquences réelles</b> sur les individus.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 4 — SOURCES D'INFORMATION -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section s4" id="sources">
+  <div class="section-header s4-header">
+    <div class="sh-icon">📰</div>
+    <div class="sh-text"><h2>Sources d'Information &amp; Neutralité</h2><p>Aucun média n'est neutre · Bulle de filtre · Environnement informationnel</p></div>
+  </div>
+  <div class="section-body s4-body">
+    <div class="fiche-grid">
+
+      <!-- Définitions -->
+      <div class="fiche-block">
+        <div class="fb-label">📖 Concepts clés</div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Neutralité des médias</b> : Aucune source n'est neutre car tout média opère des <b>choix éditoriaux</b> — quoi couvrir, comment, selon quels intérêts économiques, politiques ou idéologiques.
+        </div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Cadrage (framing)</b> : La façon dont une information est <b>présentée</b> influence notre perception, indépendamment des faits eux-mêmes. (Théorie de Goffman)
+        </div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Bulle de filtre (filter bubble)</b> : Les algorithmes créent un <b>univers informationnel personnalisé</b> qui renforce nos opinions existantes et nous isole des points de vue différents.
+        </div>
+        <div class="def-box">
+          <b>Chambre d'écho (echo chamber)</b> : Environnement où on n'entend que des opinions <b>similaires aux siennes</b> — aggravé par les réseaux sociaux.
+        </div>
+      </div>
+
+      <!-- Auteurs -->
+      <div class="fiche-block">
+        <div class="fb-label">👤 Auteurs à citer</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1c1500;color:#fbbf24;">P</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Eli Pariser</div>
+            <div class="auteur-date">Militant américain du web · "The Filter Bubble" (2011)</div>
+            <div class="auteur-contrib">Il a <b>inventé et théorisé</b> le concept de bulle de filtre, après avoir remarqué que Facebook lui cachait les posts de ses amis de droite.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1c1500;color:#fbbf24;">B</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Noam Chomsky &amp; Edward Herman</div>
+            <div class="auteur-date">"La Fabrication du consentement" (1988)</div>
+            <div class="auteur-contrib">Ils montrent comment les <b>médias mainstream servent des intérêts dominants</b> et fabriquent un consentement populaire via la sélection des sujets traités.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#1c1500;color:#fbbf24;">G</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Erving Goffman</div>
+            <div class="auteur-date">Sociologue américain · Théorie du cadrage (framing)</div>
+            <div class="auteur-contrib">Il montre que la <b>mise en cadre d'une information</b> (framing) influence autant notre compréhension que le contenu lui-même.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="fiche-block">
+        <div class="fb-label">💬 Citations</div>
+        <div class="citation">
+          <div class="cite-text">Si nous ne décidons pas nous-mêmes quelles informations nous recevons, quelqu'un d'autre le fait pour nous.</div>
+          <div class="cite-from">— Eli Pariser, The Filter Bubble (2011)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Les médias ne nous disent pas quoi penser, mais ils nous disent à quoi penser.</div>
+          <div class="cite-from">— Maxwell McCombs & Donald Shaw, Théorie de l'agenda-setting (1972)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">L'objectivité en journalisme est un mythe noble mais jamais totalement atteignable : chaque choix éditorial est un acte politique.</div>
+          <div class="cite-from">— Inspiré de Bourdieu, "Sur la télévision" (1996)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Les réseaux sociaux construisent autour de nous une prison dorée faite de nos propres préférences.</div>
+          <div class="cite-from">— Reformulation d'Eli Pariser sur la bulle de filtre</div>
+        </div>
+      </div>
+
+      <!-- Exemples -->
+      <div class="fiche-block">
+        <div class="fb-label">🎯 Exemples concrets</div>
+        <div class="ex-list">
+          <div class="ex-item">
+            <div class="ex-name">Même manifestation, deux titres différents</div>
+            <div class="ex-desc">Le Figaro : "Des milliers de Français dans la rue contre la réforme." / L'Humanité : "Le peuple en colère dit non." — Même fait, cadrage opposé.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">L'expérience d'Eli Pariser (2011)</div>
+            <div class="ex-desc">Il montre que deux personnes cherchant "Égypte" sur Google obtiennent des résultats totalement différents selon leur historique — même mot-clé, deux réalités.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">TikTok & radicalisation</div>
+            <div class="ex-desc">Des études montrent que l'algorithme TikTok mène un utilisateur de contenus neutres à des contenus extrémistes en <b>moins de 30 minutes</b> d'utilisation passive.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Agenda-setting — Covid-19</div>
+            <div class="ex-desc">En 2020, la surreprésentation du Covid dans les médias a fait percevoir ce risque comme prioritaire sur d'autres problèmes (dépression, violences domestiques) statistiquement plus fréquents.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrases types -->
+      <div class="fiche-block full">
+        <div class="fb-label">✍️ Phrases types pour ta copie</div>
+        <div class="phrase-list">
+          <div class="phrase-item">Comme l'ont démontré <b>McCombs et Shaw</b> avec la théorie de l'agenda-setting (1972), les médias ne nous disent pas quoi penser, mais ils nous imposent <b>à quoi penser</b> — définissant les sujets qui existent dans notre espace mental.</div>
+          <div class="phrase-item"><b>Eli Pariser</b> (The Filter Bubble, 2011) alerte sur le fait que les algorithmes des plateformes construisent autour de nous un univers informationnel sur-mesure, <b>nous coupant progressivement de la diversité des points de vue</b>.</div>
+          <div class="phrase-item">Affirmer qu'aucun lieu ou moyen d'information n'est neutre ne signifie pas que tout se vaut. Cela implique d'<b>analyser les sources</b> : qui parle ? Pour qui ? Avec quels intérêts ? Selon quel cadrage ?</div>
+          <div class="phrase-item">Dans un contexte de <b>surinformation et de désinformation</b>, l'esprit critique est une compétence de survie citoyenne : il permet de remonter aux sources, de croiser les informations et de résister aux manipulations.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 5 — ÉTHIQUE & MORALE -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section s5" id="ethique">
+  <div class="section-header s5-header">
+    <div class="sh-icon">⚖️</div>
+    <div class="sh-text"><h2>Éthique, Morale &amp; Dilemmes</h2><p>Définitions · Grands philosophes · Citations · Mœurs qui évoluent</p></div>
+  </div>
+  <div class="section-body s5-body">
+    <div class="fiche-grid">
+
+      <!-- Définitions -->
+      <div class="fiche-block">
+        <div class="fb-label">📖 Définitions clés</div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Morale</b> = ensemble de <b>normes et valeurs</b> du bien et du mal transmises par la société, la religion, la culture à une époque donnée. C'est un héritage collectif.
+          <br><em>→ Ce qui EST considéré comme bien ou mal dans une société</em>
+        </div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Éthique</b> = démarche de <b>réflexion critique et personnelle</b> sur ces normes morales. Elle questionne leur fondement et leur légitimité.
+          <br><em>→ La philosophie qui interroge POURQUOI c'est bien ou mal</em>
+        </div>
+        <div class="def-box" style="margin-bottom:6px;">
+          <b>Dilemme moral</b> = situation où deux valeurs morales <b>toutes deux légitimes</b> s'opposent, forçant un choix qui sacrifie l'une d'elles.
+        </div>
+        <div class="def-box">
+          <b>Relativisme moral</b> = la morale n'est pas universelle, elle varie selon les <b>époques et les cultures</b> (à ne pas confondre avec "tout se vaut").
+        </div>
+      </div>
+
+      <!-- Auteurs -->
+      <div class="fiche-block">
+        <div class="fb-label">👤 Philosophes à citer</div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#052e16;color:#34d399;">K</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Emmanuel Kant</div>
+            <div class="auteur-date">Philosophe allemand (1724-1804)</div>
+            <div class="auteur-contrib">L'<b>impératif catégorique</b> : "Agis seulement selon la maxime que tu voudrais voir érigée en loi universelle." → Morale déontologique, universelle.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#052e16;color:#34d399;">A</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Aristote</div>
+            <div class="auteur-date">Philosophe grec (384-322 av. J.-C.) · "Éthique à Nicomaque"</div>
+            <div class="auteur-contrib">Il définit l'éthique comme la recherche du <b>bonheur (eudémonia)</b> par la vertu. La vertu s'acquiert par la pratique, pas par la nature.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#052e16;color:#34d399;">N</div>
+          <div class="auteur-info">
+            <div class="auteur-name">Friedrich Nietzsche</div>
+            <div class="auteur-date">Philosophe allemand (1844-1900)</div>
+            <div class="auteur-contrib">Il critique la morale comme construction humaine relative au pouvoir : <b>"Il n'y a pas de faits moraux."</b> — La morale n'est pas universelle.</div>
+          </div>
+        </div>
+        <div class="auteur">
+          <div class="auteur-avatar" style="background:#052e16;color:#34d399;">S</div>
+          <div class="auteur-info">
+            <div class="auteur-name">John Stuart Mill</div>
+            <div class="auteur-date">Philosophe britannique (1806-1873)</div>
+            <div class="auteur-contrib">L'<b>utilitarisme</b> : "Le bien c'est ce qui maximise le bonheur du plus grand nombre." → Morale conséquentialiste (le résultat justifie l'acte).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="fiche-block">
+        <div class="fb-label">💬 Citations essentielles</div>
+        <div class="citation">
+          <div class="cite-text">Agis de telle sorte que tu traites l'humanité, aussi bien dans ta personne que dans la personne de tout autre, toujours comme une fin, et jamais simplement comme un moyen.</div>
+          <div class="cite-from">— Emmanuel Kant, Fondements de la métaphysique des mœurs (1785)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Il n'y a pas de faits moraux, seulement des interprétations morales des faits.</div>
+          <div class="cite-from">— Friedrich Nietzsche (illustre le relativisme moral)</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">La morale est une affaire de hasard géographique : si tu es né ailleurs, tu aurais d'autres valeurs.</div>
+          <div class="cite-from">— Inspiré de Pascal : "Vérité en deçà des Pyrénées, erreur au-delà"</div>
+        </div>
+        <div class="citation">
+          <div class="cite-text">Ce qui est moral dans une époque peut être immoral dans une autre : les mœurs évoluent, et c'est heureux.</div>
+          <div class="cite-from">— Formulation académique courante (philosophie morale)</div>
+        </div>
+      </div>
+
+      <!-- Dilemmes & Exemples -->
+      <div class="fiche-block">
+        <div class="fb-label">🎯 Dilemmes moraux à citer</div>
+        <div class="ex-list">
+          <div class="ex-item">
+            <div class="ex-name">Le dilemme du tramway (Trolley Problem)</div>
+            <div class="ex-desc">Un tramway fou fonce sur 5 personnes. Tu peux le dévier sur 1. Faut-il agir ? → <b>Utilitarisme vs Déontologie</b> (Judith Jarvis Thomson, 1985). Aucune réponse universelle.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Jean Valjean (Victor Hugo)</div>
+            <div class="ex-desc">Voler du pain pour nourrir ses neveux affamés : <b>loi vs survie humaine</b>. Illustre parfaitement la tension entre règle morale et réalité concrète.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-name">Évolution des mœurs — exemples historiques</div>
+            <div class="ex-desc">→ Esclavage : légal et moralement accepté jusqu'au XIXe s. (abolition France : <b>1848</b>)<br>→ Peine de mort : légale en France jusqu'en <b>1981</b> (abolition par Robert Badinter)<br>→ Droit de vote des femmes : accordé en France en <b>1944</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phrases types -->
+      <div class="fiche-block full">
+        <div class="fb-label">✍️ Phrases types pour ta copie</div>
+        <div class="phrase-list">
+          <div class="phrase-item">La distinction entre morale et éthique est fondamentale : là où la <b>morale</b> désigne les normes héritées d'une société, l'<b>éthique</b> est la démarche réflexive qui en interroge le fondement — c'est précisément l'exercice de l'esprit critique appliqué aux valeurs.</div>
+          <div class="phrase-item">Un dilemme moral illustre que la réalité ne se réduit pas à un choix simple entre "bien" et "mal" : il met en tension <b>deux valeurs toutes deux légitimes</b>, forçant à argumenter plutôt qu'à trancher.</div>
+          <div class="phrase-item">Comme le rappelait <b>Blaise Pascal</b> : "Vérité en deçà des Pyrénées, erreur au-delà." Ce relativisme moral historique nous oblige à l'humilité : nos certitudes morales actuelles sont elles aussi situées dans le temps.</div>
+          <div class="phrase-item">L'abolition de l'esclavage (France, 1848), du droit de vote réservé aux hommes (1944) ou de la peine de mort (1981) montrent que <b>les mœurs évoluent</b> — ce qui était moral hier peut être considéré comme une honte aujourd'hui.</div>
+          <div class="phrase-item">Pour <b>Kant</b>, la morale repose sur l'<b>impératif catégorique</b> : agir selon des principes qu'on voudrait voir universalisés. Pour <b>Mill</b>, la morale est utilitariste : l'acte bon est celui qui maximise le bien-être collectif. Ces deux approches s'affrontent dans tout dilemme moral.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MÉMO RAPIDE -->
+<div style="background:#0d1117;border:2px solid #374151;border-radius:14px;padding:24px;margin-top:20px;">
+  <div style="font-size:1rem;font-weight:800;color:#f1f5f9;margin-bottom:16px;">⚡ Mémo Express — Noms à avoir absolument en tête</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+    <div style="background:#1a0008;border:1px solid #881337;border-radius:8px;padding:10px;">
+      <div style="font-size:0.72rem;color:#fb7185;font-weight:700;margin-bottom:4px;">BIAIS COGNITIFS</div>
+      <div style="font-size:0.82rem;color:#e2e8f0;"><b>Kahneman</b> + Tversky<br><span style="color:#64748b;font-size:0.75rem;">Thinking Fast and Slow (2011)</span></div>
+    </div>
+    <div style="background:#0c2847;border:1px solid #1e40af;border-radius:8px;padding:10px;">
+      <div style="font-size:0.72rem;color:#60a5fa;font-weight:700;margin-bottom:4px;">SYSTÈME 1 & 2</div>
+      <div style="font-size:0.82rem;color:#e2e8f0;"><b>Kahneman</b><br><span style="color:#64748b;font-size:0.75rem;">+ Thaler & Sunstein (Nudge)</span></div>
+    </div>
+    <div style="background:#1e1b4b;border:1px solid #4c1d95;border-radius:8px;padding:10px;">
+      <div style="font-size:0.72rem;color:#a78bfa;font-weight:700;margin-bottom:4px;">STÉRÉOTYPES</div>
+      <div style="font-size:0.82rem;color:#e2e8f0;"><b>Lippmann</b> + <b>Beauvoir</b> + Allport<br><span style="color:#64748b;font-size:0.75rem;">+ Voltaire ("préjugé")</span></div>
+    </div>
+    <div style="background:#1c1500;border:1px solid #92400e;border-radius:8px;padding:10px;">
+      <div style="font-size:0.72rem;color:#fbbf24;font-weight:700;margin-bottom:4px;">SOURCES D'INFO</div>
+      <div style="font-size:0.82rem;color:#e2e8f0;"><b>Eli Pariser</b> + <b>Chomsky</b><br><span style="color:#64748b;font-size:0.75rem;">+ McCombs & Shaw (agenda-setting)</span></div>
+    </div>
+    <div style="background:#052e16;border:1px solid #065f46;border-radius:8px;padding:10px;">
+      <div style="font-size:0.72rem;color:#34d399;font-weight:700;margin-bottom:4px;">ÉTHIQUE & MORALE</div>
+      <div style="font-size:0.82rem;color:#e2e8f0;"><b>Kant</b> + <b>Aristote</b> + Mill<br><span style="color:#64748b;font-size:0.75rem;">+ Pascal + Nietzsche</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end container -->
+</body>
+</html>
