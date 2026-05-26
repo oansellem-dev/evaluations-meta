@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Métacognitif — BPFS / Startup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #07090f; color: #e2e8f0; min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #1a0533 0%, #16042a 50%, #120326 100%);
+  padding: 44px 20px 36px; text-align: center;
+  border-bottom: 3px solid #8b5cf6;
+}
+.hero h1 { font-size: 1.9rem; color: #c4b5fd; margin-bottom: 6px; }
+.hero .sub { color: #94a3b8; font-size: 0.97rem; max-width: 580px; margin: 0 auto 14px; line-height: 1.6; }
+.badge-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; }
+
+.intro-box { max-width: 820px; margin: 28px auto 0; padding: 0 16px; }
+.meta-explain { background: #12082a; border: 1px solid #4c1d95; border-radius: 14px; padding: 24px 28px; }
+.meta-explain h2 { color: #a78bfa; margin-bottom: 14px; font-size: 1.1rem; }
+.meta-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+@media(max-width:600px){ .meta-grid { grid-template-columns: 1fr; } }
+.meta-cell { border-radius: 10px; padding: 14px; text-align: center; }
+.mc-green { background: #052e16; border: 1px solid #10b981; }
+.mc-yellow { background: #1c1500; border: 1px solid #f59e0b; }
+.mc-red { background: #1c0a0a; border: 1px solid #ef4444; }
+.mc-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.mc-label { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+.mc-green .mc-label { color: #10b981; }
+.mc-yellow .mc-label { color: #f59e0b; }
+.mc-red .mc-label { color: #ef4444; }
+.mc-desc { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
+
+.start-btn {
+  display: block; margin: 20px auto 0;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: white; border: none; padding: 14px 40px;
+  border-radius: 12px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.4); }
+
+.score-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #0d1117; border-bottom: 2px solid #1e1b4b;
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+}
+.score-label { color: #94a3b8; font-size: 0.85rem; }
+.score-value { color: #a78bfa; font-size: 1.2rem; font-weight: 700; min-width: 55px; }
+.progress-track { flex: 1; height: 6px; background: #1f2937; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #ec4899); border-radius: 4px; transition: width .4s; width: 0%; }
+
+.container { max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; display: none; }
+
+.section-title {
+  text-align: center; font-size: 1.2rem; font-weight: 700;
+  color: #a78bfa; margin: 32px 0 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-title::before, .section-title::after {
+  content: ''; flex: 1; height: 2px;
+  background: linear-gradient(90deg, transparent, #7c3aed, transparent);
+}
+
+.card { background: #111827; border: 1px solid #1e293b; border-radius: 14px; padding: 22px; margin-bottom: 22px; transition: border-color .3s; }
+.card.answered { border-color: #312e81; }
+
+.q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.q-num {
+  background: linear-gradient(135deg, #2e1065, #7c3aed);
+  color: white; font-weight: 700; font-size: 0.8rem;
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.q-text { font-size: 0.96rem; line-height: 1.65; color: #e2e8f0; font-weight: 500; }
+
+.tag { display: inline-block; font-size: 0.67rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-bottom: 5px; letter-spacing: 0.05em; text-transform: uppercase; }
+.tag-cout { background: #1e1b4b; color: #a78bfa; }
+.tag-saas { background: #052e16; color: #34d399; }
+.tag-pl { background: #1c1200; color: #fbbf24; }
+.tag-dash { background: #0c2847; color: #38bdf8; }
+.tag-excel { background: #1a0a1a; color: #e879f9; }
+
+.step-label { font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.conf-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.conf-btn { flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; font-size: 0.82rem; font-weight: 600; transition: all .2s; text-align: center; background: #0f172a; }
+.conf-btn:hover { transform: scale(1.03); }
+.cb-sure { border-color: #1a3a25; color: #34d399; }
+.cb-sure:hover, .cb-sure.sel { background: #052e16; border-color: #10b981; }
+.cb-maybe { border-color: #2a1f05; color: #fbbf24; }
+.cb-maybe:hover, .cb-maybe.sel { background: #1c1500; border-color: #f59e0b; }
+.cb-guess { border-color: #2a0f0f; color: #f87171; }
+.cb-guess:hover, .cb-guess.sel { background: #1c0a0a; border-color: #ef4444; }
+.conf-btn.sel { cursor: default; }
+.conf-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { background: #0f172a; border: 2px solid #1e293b; border-radius: 10px; padding: 11px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all .2s; font-size: 0.91rem; pointer-events: none; }
+.option.unlocked { pointer-events: auto; }
+.option:hover:not(.locked) { border-color: #7c3aed; background: #150b2e; transform: translateX(3px); }
+.dot { width: 24px; height: 24px; border-radius: 50%; background: #1f2937; border: 2px solid #374151; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; transition: all .2s; }
+.option.correct { border-color: #10b981; background: #052e16; }
+.option.correct .dot { background: #10b981; border-color: #10b981; color: white; font-weight: 700; }
+.option.wrong { border-color: #ef4444; background: #1c0a0a; }
+.option.wrong .dot { background: #ef4444; border-color: #ef4444; color: white; }
+.option.locked { cursor: default; pointer-events: none; }
+
+.meta-feedback { display: none; margin-top: 14px; border-radius: 11px; padding: 16px 18px; font-size: 0.86rem; line-height: 1.7; }
+.meta-feedback.show { display: block; }
+.mf-mastered { background: #052e16; border: 2px solid #10b981; }
+.mf-mastered .mf-title { color: #10b981; font-weight: 700; font-size: 0.95rem; }
+.mf-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.mf-growth .mf-title { color: #4ade80; font-weight: 700; font-size: 0.95rem; }
+.mf-lucky { background: #1a1a2e; border: 2px solid #60a5fa; }
+.mf-lucky .mf-title { color: #60a5fa; font-weight: 700; font-size: 0.95rem; }
+.mf-blind { background: #2a0a00; border: 2px solid #f97316; }
+.mf-blind .mf-title { color: #f97316; font-weight: 700; font-size: 0.95rem; }
+.mf-known-gap { background: #1c1000; border: 2px solid #fbbf24; }
+.mf-known-gap .mf-title { color: #fbbf24; font-weight: 700; font-size: 0.95rem; }
+.mf-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.mf-gap .mf-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
+.mf-body { color: #94a3b8; margin-top: 4px; }
+
+/* Boîte explication détaillée */
+.explain-box {
+  margin-top: 14px;
+  background: #0d1117;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.explain-box .ex-title {
+  font-size: 0.8rem; font-weight: 700; color: #a78bfa;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+.explain-section { margin-bottom: 12px; }
+.explain-section:last-child { margin-bottom: 0; }
+.explain-section .es-label {
+  font-size: 0.75rem; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 5px;
+}
+.explain-section .es-content {
+  font-size: 0.87rem; color: #cbd5e1; line-height: 1.7;
+}
+.explain-section .es-content b { color: #e2e8f0; }
+.explain-section .es-content .highlight { color: #c4b5fd; font-weight: 700; }
+.formula-pill {
+  display: inline-block;
+  background: #1e1b4b; border: 1px solid #4c1d95;
+  color: #c4b5fd; font-weight: 700;
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 0.92rem; margin: 6px 0;
+  font-family: monospace;
+}
+.example-block {
+  background: #111827; border: 1px solid #312e81;
+  border-radius: 8px; padding: 12px 14px;
+  margin-top: 8px; font-size: 0.85rem;
+}
+.example-block .ex-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+.example-block .ex-row .ex-k { color: #64748b; }
+.example-block .ex-row .ex-v { color: #e2e8f0; font-weight: 600; }
+.example-block .ex-row.ex-result { border-top: 1px solid #1e293b; margin-top: 6px; padding-top: 8px; }
+.example-block .ex-row.ex-result .ex-k { color: #a78bfa; font-weight: 700; }
+.example-block .ex-row.ex-result .ex-v { color: #c4b5fd; font-size: 1rem; }
+.defs-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.def-chip { background: #1f2937; border: 1px solid #374151; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; color: #94a3b8; }
+.def-chip b { color: #e2e8f0; }
+.why-box {
+  background: #0a0f1e; border-left: 3px solid #8b5cf6;
+  padding: 10px 14px; border-radius: 0 8px 8px 0;
+  margin-top: 8px; font-size: 0.84rem; color: #94a3b8; line-height: 1.6;
+}
+.why-box b { color: #c4b5fd; }
+
+.reflect-prompt { margin-top: 12px; padding: 10px 14px; background: #0d1117; border: 1px dashed #312e81; border-radius: 8px; }
+.reflect-prompt p { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+.reflect-select { width: 100%; background: #1f2937; border: 1px solid #374151; color: #cbd5e1; padding: 7px 10px; border-radius: 7px; font-size: 0.82rem; cursor: pointer; }
+
+.dashboard { display: none; max-width: 820px; margin: 0 auto; padding: 28px 16px 60px; }
+.dash-hero { background: linear-gradient(135deg, #0f0524, #080d1a); border: 2px solid #7c3aed; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 28px; }
+.dash-hero h2 { color: #a78bfa; font-size: 1.5rem; margin-bottom: 6px; }
+.dash-score { font-size: 3.5rem; font-weight: 900; color: #10b981; margin: 8px 0; }
+.dash-sub { color: #64748b; font-size: 0.9rem; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+@media(max-width:600px){ .dash-grid { grid-template-columns: 1fr; } }
+.dash-card { border-radius: 13px; padding: 18px; }
+.dc-mastered { background: #052e16; border: 2px solid #10b981; }
+.dc-growth { background: #1a2e1a; border: 2px solid #4ade80; }
+.dc-blind { background: #2a0a00; border: 2px solid #f97316; }
+.dc-gap { background: #1c0a0a; border: 2px solid #f87171; }
+.dc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dc-icon { font-size: 1.4rem; }
+.dc-title { font-size: 0.95rem; font-weight: 700; }
+.dc-mastered .dc-title { color: #10b981; }
+.dc-growth .dc-title { color: #4ade80; }
+.dc-blind .dc-title { color: #f97316; }
+.dc-gap .dc-title { color: #f87171; }
+.dc-count { font-size: 2rem; font-weight: 900; margin-bottom: 6px; }
+.dc-mastered .dc-count { color: #10b981; }
+.dc-growth .dc-count { color: #4ade80; }
+.dc-blind .dc-count { color: #f97316; }
+.dc-gap .dc-count { color: #f87171; }
+.dc-desc { font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+.topic-list { margin-top: 8px; }
+.topic-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin: 4px 0; background: rgba(0,0,0,0.2); border-radius: 7px; font-size: 0.8rem; color: #cbd5e1; }
+.topic-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.plan-box { background: #0c0a1f; border: 2px solid #4c1d95; border-radius: 14px; padding: 22px; margin-top: 24px; }
+.plan-box h3 { color: #a78bfa; margin-bottom: 16px; font-size: 1.05rem; }
+.plan-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #1e1b4b; }
+.plan-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.plan-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+.pn-1 { background: #f97316; color: #0a0a0a; }
+.pn-2 { background: #fbbf24; color: #0a0a0a; }
+.pn-3 { background: #4ade80; color: #0a0a0a; }
+.plan-content { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+.plan-content b { color: #e2e8f0; }
+.restart-btn { display: block; margin: 24px auto 0; background: linear-gradient(135deg, #2e1065, #4c1d95); color: #c4b5fd; border: 1px solid #7c3aed; padding: 12px 32px; border-radius: 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
+.restart-btn:hover { background: linear-gradient(135deg, #4c1d95, #6d28d9); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🧠 Diagnostic Métacognitif — BPFS / Startup</h1>
+  <p class="sub">Indique ta confiance <strong>avant</strong> de répondre. Chaque explication te dit <em>pourquoi</em> et <em>comment</em> — avec des exemples concrets.</p>
+  <div class="badge-row">
+    <span class="badge" style="background:#1e1b4b;color:#a78bfa;">💸 Coûts & Marges</span>
+    <span class="badge" style="background:#052e16;color:#34d399;">🚀 SaaS Metrics</span>
+    <span class="badge" style="background:#1c1200;color:#fbbf24;">📊 P&L & Dashboard</span>
+    <span class="badge" style="background:#1a0a1a;color:#e879f9;">📋 Excel</span>
+    <span class="badge" style="background:#1e2433;color:#94a3b8;">15 questions · Toutes notions</span>
+  </div>
+</div>
+
+<div class="intro-box">
+  <div class="meta-explain">
+    <h2>🎯 Comment ça marche ?</h2>
+    <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;">Chaque question a <strong style="color:#e2e8f0;">2 étapes</strong>. D'abord ta confiance, ensuite ta réponse. Et après chaque réponse : une explication complète avec le <em>pourquoi</em>, le <em>comment</em>, et un exemple chiffré.</p>
+    <div class="meta-grid">
+      <div class="meta-cell mc-green"><div class="mc-icon">🟢</div><div class="mc-label">Je suis sûr·e</div><div class="mc-desc">Tu maîtrises vraiment ou tu crois maîtriser ?</div></div>
+      <div class="meta-cell mc-yellow"><div class="mc-icon">🟡</div><div class="mc-label">Je pense…</div><div class="mc-desc">T'as une idée mais pas sûr·e</div></div>
+      <div class="meta-cell mc-red"><div class="mc-icon">🔴</div><div class="mc-label">Je devine</div><div class="mc-desc">T'as vraiment pas la réponse</div></div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">🚀 Commencer le diagnostic</button>
+  </div>
+</div>
+
+<div class="score-bar" id="scoreBar" style="display:none;">
+  <span class="score-label">Score</span>
+  <span class="score-value" id="scoreDisplay">0 / 15</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span style="color:#64748b;font-size:0.8rem;" id="progressText">0 / 15</span>
+</div>
+
+<div class="container" id="quizContainer">
+
+  <div class="section-title">💸 Coûts, Marges & Seuil de Rentabilité</div>
+
+  <!-- Q1 -->
+  <div class="card" id="card-1">
+    <div class="q-header"><div class="q-num">1</div><div>
+      <span class="tag tag-cout">Coûts</span>
+      <div class="q-text">Quelle est la différence entre un coût fixe <strong>engagé</strong> et un coût fixe <strong>programmé</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(1,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(1,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(1,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="1" data-topic="Coûts fixes : engagés vs programmés">
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Les coûts engagés sont variables, les programmés sont fixes</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Les coûts engagés sont à court terme, les programmés à long terme</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Les coûts engagés sont irrévocables (loyer, amortissements) ; les programmés sont décidés par la direction mais peuvent être ajustés (budget pub, R&D)</div>
+      <div class="option" onclick="choose(this,1)"><div class="dot"></div>Ce sont deux termes pour la même chose</div>
+    </div>
+    <div class="meta-feedback" id="mf-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="card-2">
+    <div class="q-header"><div class="q-num">2</div><div>
+      <span class="tag tag-cout">Marges</span>
+      <div class="q-text">Formule du <strong>Taux de Marge sur Coûts Variables</strong> (CM Ratio) ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(2,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(2,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(2,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="2" data-topic="CM Ratio = (Prix − CVU) / Prix × 100">
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>CM Ratio = CVU / Prix × 100</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>CM Ratio = (Prix − CVU) / Prix × 100</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>CM Ratio = Coûts Fixes / Chiffre d'Affaires × 100</div>
+      <div class="option" onclick="choose(this,2)"><div class="dot"></div>CM Ratio = (CA − Coûts Fixes) / CA × 100</div>
+    </div>
+    <div class="meta-feedback" id="mf-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="card-3">
+    <div class="q-header"><div class="q-num">3</div><div>
+      <span class="tag tag-cout">Seuil</span>
+      <div class="q-text">Formule du <strong>Seuil de Rentabilité en Chiffre d'Affaires</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(3,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(3,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(3,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="3" data-topic="Seuil en CA = Coûts Fixes / CM Ratio">
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Seuil CA = Coûts Variables / CM Ratio</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Seuil CA = Coûts Fixes × CM Ratio</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Seuil CA = (Coûts Fixes + CVU) / Prix</div>
+      <div class="option" onclick="choose(this,3)"><div class="dot"></div>Seuil CA = Coûts Fixes / CM Ratio</div>
+    </div>
+    <div class="meta-feedback" id="mf-3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card" id="card-4">
+    <div class="q-header"><div class="q-num">4</div><div>
+      <span class="tag tag-cout">Analyse écarts</span>
+      <div class="q-text">Comment calcule-t-on l'<strong>Effet Volume</strong> dans une analyse d'écarts budget/réel ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(4,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(4,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(4,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="4" data-topic="Effet Volume = (Vol Réel − Vol Budget) × Prix Budget">
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>(Volume Réel − Volume Budget) × Prix Budget</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>(Prix Réel − Prix Budget) × Volume Réel</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>(Volume Réel − Volume Budget) × Prix Réel</div>
+      <div class="option" onclick="choose(this,4)"><div class="dot"></div>CA Réel − CA Budget</div>
+    </div>
+    <div class="meta-feedback" id="mf-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="card-5">
+    <div class="q-header"><div class="q-num">5</div><div>
+      <span class="tag tag-pl">P&L</span>
+      <div class="q-text">Quel est l'ordre correct du compte de résultat (P&L) de haut en bas ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(5,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(5,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(5,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="5" data-topic="P&L : Net Sales → Gross Profit → EBITDA → EBIT → Net Profit">
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>EBITDA → Net Sales → Gross Profit → EBIT → Net Profit</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Net Sales → EBIT → Gross Profit → EBITDA → Net Profit</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Net Sales → Gross Profit → EBITDA → EBIT → Net Profit</div>
+      <div class="option" onclick="choose(this,5)"><div class="dot"></div>Net Profit → EBIT → EBITDA → Gross Profit → Net Sales</div>
+    </div>
+    <div class="meta-feedback" id="mf-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="card-6">
+    <div class="q-header"><div class="q-num">6</div><div>
+      <span class="tag tag-pl">P&L</span>
+      <div class="q-text">Comment calcule-t-on le <strong>Gross Margin %</strong> (Taux de marge brute) ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(6,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(6,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(6,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="3" data-q="6" data-topic="Gross Margin % = (Net Sales − COGS) / Net Sales × 100">
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>COGS / Net Sales × 100</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>(Net Sales − Coûts Fixes) / Net Sales × 100</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>Net Sales / COGS × 100</div>
+      <div class="option" onclick="choose(this,6)"><div class="dot"></div>(Net Sales − COGS) / Net Sales × 100</div>
+    </div>
+    <div class="meta-feedback" id="mf-6"></div>
+  </div>
+
+  <div class="section-title">🚀 SaaS Metrics & Validation</div>
+
+  <!-- Q7 -->
+  <div class="card" id="card-7">
+    <div class="q-header"><div class="q-num">7</div><div>
+      <span class="tag tag-saas">SaaS</span>
+      <div class="q-text">Formule complète du <strong>CLV (Customer Lifetime Value)</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(7,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(7,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(7,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="7" data-topic="CLV = ARPA × Gross Margin% × Lifetime">
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>CLV = CAC × Churn Rate × ARPA</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>CLV = ARPA × Gross Margin% × Lifetime  (Lifetime = 1 / Churn Rate)</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>CLV = ARPA / Churn Rate</div>
+      <div class="option" onclick="choose(this,7)"><div class="dot"></div>CLV = (ARPA − CAC) × Nombre de clients</div>
+    </div>
+    <div class="meta-feedback" id="mf-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="card-8">
+    <div class="q-header"><div class="q-num">8</div><div>
+      <span class="tag tag-saas">SaaS</span>
+      <div class="q-text">Formule du <strong>Payback Period</strong> et quel ratio CLV/CAC indique un business sain ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(8,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(8,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(8,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="8" data-topic="Payback = CAC / (ARPA × Gross Margin%) — CLV/CAC ≥ 3">
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Payback = CLV / CAC — CLV/CAC ≥ 1 suffit</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Payback = ARPA / CAC — CLV/CAC ≥ 2</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Payback = CAC / (ARPA × Gross Margin%) — CLV/CAC ≥ 3 = business sain</div>
+      <div class="option" onclick="choose(this,8)"><div class="dot"></div>Payback = CAC × Churn Rate — CLV/CAC ≥ 5</div>
+    </div>
+    <div class="meta-feedback" id="mf-8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card" id="card-9">
+    <div class="q-header"><div class="q-num">9</div><div>
+      <span class="tag tag-saas">SaaS</span>
+      <div class="q-text">Une startup a un Burn Rate de <strong>50 000 €/mois</strong> et une trésorerie de <strong>300 000 €</strong>. Quelle est sa Runway ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(9,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(9,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(9,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="9" data-topic="Runway = Trésorerie / Burn Rate = 6 mois → AMBER">
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>3 mois</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>6 mois</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>12 mois</div>
+      <div class="option" onclick="choose(this,9)"><div class="dot"></div>15 mois</div>
+    </div>
+    <div class="meta-feedback" id="mf-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="card-10">
+    <div class="q-header"><div class="q-num">10</div><div>
+      <span class="tag tag-saas">Validation</span>
+      <div class="q-text">Un prospect signe un LOI (Letter of Intent) mais <strong>ne paie pas encore</strong>. À quel niveau de validation marché cela correspond-il ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(10,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(10,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(10,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="10" data-topic="Validation Niveau 2 : Solution (engagement sans paiement)">
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Niveau 1 — Validation du Problème</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Niveau 3 — Validation Économique (paiement effectif)</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Niveau 2 — Validation de la Solution (engagement fort, pas encore payant)</div>
+      <div class="option" onclick="choose(this,10)"><div class="dot"></div>Ce n'est aucun des 3 niveaux</div>
+    </div>
+    <div class="meta-feedback" id="mf-10"></div>
+  </div>
+
+  <div class="section-title">📊 Dashboard & Traffic Light</div>
+
+  <!-- Q11 -->
+  <div class="card" id="card-11">
+    <div class="q-header"><div class="q-num">11</div><div>
+      <span class="tag tag-dash">Dashboard</span>
+      <div class="q-text">Règle du <strong>Traffic Light sur la Runway</strong> : quelle est la bonne règle ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(11,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(11,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(11,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="11" data-topic="Traffic Light : < 6 mois RED · 6-12 AMBER · > 12 GREEN">
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>< 3 mois = RED, 3-6 = AMBER, > 6 = GREEN</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>< 6 mois = RED, 6-12 = AMBER, > 12 = GREEN</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>< 12 mois = RED, 12-24 = AMBER, > 24 = GREEN</div>
+      <div class="option" onclick="choose(this,11)"><div class="dot"></div>< 1 mois = RED, 1-6 = AMBER, > 6 = GREEN</div>
+    </div>
+    <div class="meta-feedback" id="mf-11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="card-12">
+    <div class="q-header"><div class="q-num">12</div><div>
+      <span class="tag tag-dash">Dashboard</span>
+      <div class="q-text">Dans un dashboard à 3 niveaux, qui consulte le <strong>Niveau 1 (Level 1)</strong> ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(12,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(12,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(12,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="0" data-q="12" data-topic="Level 1 = Board/Direction · Level 2 = Managers · Level 3 = Équipes">
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Le Board / la Direction — vision stratégique globale</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Les équipes terrain — métriques opérationnelles</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Les managers intermédiaires — suivi par département</div>
+      <div class="option" onclick="choose(this,12)"><div class="dot"></div>Les clients</div>
+    </div>
+    <div class="meta-feedback" id="mf-12"></div>
+  </div>
+
+  <div class="section-title">📋 Formules Excel & Raisonnement</div>
+
+  <!-- Q13 -->
+  <div class="card" id="card-13">
+    <div class="q-header"><div class="q-num">13</div><div>
+      <span class="tag tag-excel">Excel</span>
+      <div class="q-text">Dans <strong>SUMIFS</strong>, dans quel ordre les paramètres sont-ils renseignés ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(13,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(13,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(13,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="13" data-topic="SUMIFS(sum_range, criteria_range1, criteria1, ...) — sum_range EN PREMIER">
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>SUMIFS(criteria_range1, criteria1, sum_range)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>SUMIFS(criteria1, sum_range, criteria_range1)</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>SUMIFS(sum_range, criteria_range1, criteria1, …)  — la plage à additionner EN PREMIER</div>
+      <div class="option" onclick="choose(this,13)"><div class="dot"></div>SUMIFS(criteria_range1, sum_range, criteria1, …)</div>
+    </div>
+    <div class="meta-feedback" id="mf-13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="card" id="card-14">
+    <div class="q-header"><div class="q-num">14</div><div>
+      <span class="tag tag-excel">Excel</span>
+      <div class="q-text">Tu veux retrouver le CA d'un client dans une autre table. Quelle formule et dans quel ordre ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(14,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(14,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(14,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="1" data-q="14" data-topic="XLOOKUP(lookup_value, lookup_array, return_array)">
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>VLOOKUP(return_array, lookup_array, lookup_value)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>XLOOKUP(lookup_value, lookup_array, return_array) — ce qu'on cherche, où, ce qu'on retourne</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>XLOOKUP(lookup_array, return_array, lookup_value)</div>
+      <div class="option" onclick="choose(this,14)"><div class="dot"></div>INDEX(lookup_value, MATCH(lookup_array))</div>
+    </div>
+    <div class="meta-feedback" id="mf-14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="card" id="card-15">
+    <div class="q-header"><div class="q-num">15</div><div>
+      <span class="tag tag-cout">Raisonnement</span>
+      <div class="q-text">Une startup a déjà dépensé 200 000 € en dev. Ça ne marche pas. Le CEO dit "on ne peut pas arrêter, on a trop investi". Quel biais ?</div>
+    </div></div>
+    <div class="step-label">① Niveau de confiance</div>
+    <div class="conf-row">
+      <button class="conf-btn cb-sure" onclick="setConf(15,'sure',this)">🟢 Je suis sûr·e</button>
+      <button class="conf-btn cb-maybe" onclick="setConf(15,'maybe',this)">🟡 Je pense…</button>
+      <button class="conf-btn cb-guess" onclick="setConf(15,'guess',this)">🔴 Je devine</button>
+    </div>
+    <div class="step-label">② Choisis ta réponse</div>
+    <div class="options" data-correct="2" data-q="15" data-topic="Sunk Cost Fallacy — seuls les coûts futurs comptent">
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Le biais de confirmation</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Le biais d'ancrage</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>Le Sunk Cost Fallacy — continuer à cause d'investissements passés irrécupérables</div>
+      <div class="option" onclick="choose(this,15)"><div class="dot"></div>L'aversion au risque</div>
+    </div>
+    <div class="meta-feedback" id="mf-15"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:32px;">
+    <button onclick="showDashboard()" style="background:linear-gradient(135deg,#4c1d95,#7c3aed);color:white;border:none;padding:16px 44px;border-radius:13px;font-size:1.05rem;font-weight:700;cursor:pointer;">
+      📊 Voir mon diagnostic complet
+    </button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="dash-hero">
+    <h2>🧠 Ton Diagnostic BPFS / Startup</h2>
+    <div class="dash-score" id="dashScore">—</div>
+    <div class="dash-sub" id="dashSub"></div>
+  </div>
+  <div class="dash-grid" id="dashGrid"></div>
+  <div class="plan-box">
+    <h3>🗺️ Ton plan de révision personnalisé</h3>
+    <div id="planSteps"></div>
+  </div>
+  <button class="restart-btn" onclick="restartQuiz()">🔄 Recommencer</button>
+</div>
+
+<script>
+const TOTAL = 15;
+let scoreCount = 0, answered = 0;
+const confidence = {}, results = {};
+
+// ══════════════════════════════════════════════════
+// EXPLICATIONS DÉTAILLÉES PAR QUESTION
+// ══════════════════════════════════════════════════
+const explanations = {
+
+  1: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Les 2 types de coûts fixes</div>
+        <div class="es-content">
+          Les coûts fixes ne changent pas avec le volume vendu — que tu vendes 10 ou 10 000 unités, tu les paies quand même. Mais à l'intérieur des coûts fixes, il y a <b>une différence importante</b> selon si tu peux les annuler ou pas.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🔒 Coût fixe ENGAGÉ</div>
+        <div class="es-content">
+          C'est un coût <b>irrévocable</b> — tu peux pas en sortir, même si tu veux. Il découle de décisions passées (contrats signés, équipements achetés).<br><br>
+          <b>Exemples :</b> loyer du bureau, remboursement d'emprunt, amortissement d'une machine.
+        </div>
+        <div class="why-box">💡 <b>Pourquoi "engagé" ?</b> Parce que tu t'es engagé par contrat ou par achat — c'est trop tard pour faire demi-tour.</div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🎚️ Coût fixe PROGRAMMÉ</div>
+        <div class="es-content">
+          C'est un coût décidé volontairement par la direction — mais qui peut être <b>réduit ou supprimé</b> si la situation change.<br><br>
+          <b>Exemples :</b> budget publicitaire, budget R&D, budget formation, abonnements logiciels.
+        </div>
+        <div class="why-box">💡 <b>Pourquoi "programmé" ?</b> Parce que c'est une décision de gestion, pas un contrat irrévocable. En cas de crise, on peut couper le budget pub — impossible de couper le loyer.</div>
+      </div>`,
+    exemple: null
+  },
+
+  2: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 C'est quoi le CM Ratio ?</div>
+        <div class="es-content">
+          Le <b>CM Ratio (Taux de Marge sur Coûts Variables)</b> te dit : pour chaque euro que tu encaisses, combien il t'en reste après avoir payé les coûts qui dépendent directement de la vente.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🔤 Lexique des abréviations</div>
+        <div class="defs-row">
+          <div class="def-chip"><b>CVU</b> = Coût Variable Unitaire (ce que tu dépenses pour produire/livrer 1 seule unité)</div>
+          <div class="def-chip"><b>Prix</b> = Prix de vente d'une unité</div>
+          <div class="def-chip"><b>Prix − CVU</b> = Marge sur coût variable unitaire (ce qu'il reste par unité vendue)</div>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 La formule</div>
+        <div class="es-content"><div class="formula-pill">CM Ratio = (Prix − CVU) / Prix × 100</div></div>
+        <div class="why-box">💡 <b>Pourquoi diviser par le Prix ?</b> Pour exprimer la marge <em>en pourcentage du prix de vente</em>. Ça permet de comparer des produits qui n'ont pas le même prix.</div>
+      </div>`,
+    exemple: {
+      titre: "🛍️ Exemple concret — SaaS à 100€/mois",
+      lignes: [
+        { k: "Prix de vente", v: "100 €" },
+        { k: "CVU (serveurs + support par client)", v: "20 €" },
+        { k: "Marge unitaire (Prix − CVU)", v: "80 €" },
+        { k: "CM Ratio = 80 / 100 × 100", v: "80 %", result: true }
+      ],
+      conclusion: "→ Pour chaque 100€ encaissés, 80€ servent à couvrir les coûts fixes et faire du profit."
+    }
+  },
+
+  3: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 C'est quoi le Seuil de Rentabilité ?</div>
+        <div class="es-content">
+          C'est le <b>CA minimum à réaliser pour ne pas perdre d'argent</b>. En dessous : tu es dans le rouge. Au-dessus : tu génères du profit. On l'appelle aussi le <em>point mort</em>.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 La formule</div>
+        <div class="es-content"><div class="formula-pill">Seuil en CA = Coûts Fixes / CM Ratio</div></div>
+        <div class="why-box">💡 <b>Pourquoi diviser par le CM Ratio ?</b> Le CM Ratio te dit quelle fraction de chaque euro de CA "reste" pour couvrir les coûts fixes. Donc si tes coûts fixes sont de 80 000€ et que tu gardes 0,4 de chaque euro (40%), il te faut 80 000 / 0,4 = 200 000€ de CA pour tout couvrir.</div>
+      </div>`,
+    exemple: {
+      titre: "🏭 Exemple concret",
+      lignes: [
+        { k: "Coûts Fixes totaux", v: "80 000 €" },
+        { k: "CM Ratio", v: "40 %" },
+        { k: "Seuil en CA = 80 000 / 0,40", v: "200 000 €", result: true }
+      ],
+      conclusion: "→ Il faut au moins 200 000€ de CA pour couvrir les coûts fixes. En dessous : perte. Au-dessus : profit."
+    }
+  },
+
+  4: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Pourquoi analyser les écarts ?</div>
+        <div class="es-content">
+          À la fin d'un trimestre, le CA réel est souvent différent du CA prévu (budget). Pour comprendre <em>pourquoi</em>, on décompose l'écart en 3 effets : <b>Volume</b>, <b>Prix</b>, et <b>Mix</b>.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 Effet Volume</div>
+        <div class="es-content">
+          <div class="formula-pill">Effet Volume = (Vol Réel − Vol Budget) × Prix Budget</div>
+        </div>
+        <div class="why-box">💡 <b>Pourquoi × Prix Budget et pas Prix Réel ?</b> Pour isoler <em>uniquement</em> l'impact du volume. On garde le prix fixé au budget pour ne pas mélanger deux effets en même temps. Si on utilisait le prix réel, on mélangerait l'effet volume ET l'effet prix.</div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 Effet Prix (pour comparaison)</div>
+        <div class="es-content">
+          <div class="formula-pill">Effet Prix = (Prix Réel − Prix Budget) × Vol Réel</div>
+          <div style="margin-top:6px;font-size:0.83rem;color:#64748b;">→ Ici on prend le vol réel car on veut voir l'impact du changement de prix sur ce qu'on a vraiment vendu.</div>
+        </div>
+      </div>`,
+    exemple: {
+      titre: "📊 Exemple",
+      lignes: [
+        { k: "Volume budgété", v: "1 000 unités" },
+        { k: "Volume réel", v: "1 200 unités" },
+        { k: "Prix budgété", v: "50 €" },
+        { k: "Effet Volume = (1 200 − 1 000) × 50", v: "+ 10 000 €", result: true }
+      ],
+      conclusion: "→ Le fait d'avoir vendu 200 unités de plus que prévu a généré 10 000€ de CA supplémentaire."
+    }
+  },
+
+  5: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Le P&L c'est quoi ?</div>
+        <div class="es-content">
+          P&L = <b>Profit & Loss</b> (Compte de Résultat en français). C'est le document qui montre combien une entreprise a gagné (ou perdu) sur une période. On part du CA total et on enlève des coûts au fur et à mesure pour arriver au profit net.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 L'ordre et ce que chaque ligne signifie</div>
+        <div class="example-block" style="font-size:0.84rem;">
+          <div class="ex-row"><span class="ex-k">🔵 Net Sales</span><span class="ex-v">CA net (prix × volume vendu)</span></div>
+          <div class="ex-row"><span class="ex-k">− COGS (coûts directs de production)</span><span class="ex-v"></span></div>
+          <div class="ex-row ex-result"><span class="ex-k">🟢 Gross Profit</span><span class="ex-v">Marge brute</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">− Opex (salaires, marketing, loyer…)</span><span class="ex-v"></span></div>
+          <div class="ex-row ex-result"><span class="ex-k">🟡 EBITDA</span><span class="ex-v">Profit avant amortissements & intérêts</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">− D&A (dépréciation & amortissement)</span><span class="ex-v"></span></div>
+          <div class="ex-row ex-result"><span class="ex-k">🟠 EBIT</span><span class="ex-v">Profit opérationnel</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">− Intérêts & impôts</span><span class="ex-v"></span></div>
+          <div class="ex-row ex-result"><span class="ex-k">🔴 Net Profit</span><span class="ex-v">Ce qui reste vraiment</span></div>
+        </div>
+      </div>
+      <div class="why-box" style="margin-top:10px">💡 <b>Moyen mémo :</b> "Net Sales, Gross Profit, EBITDA, EBIT, Net Profit" → <b>"Never Give Everything In Negotiations"</b></div>`,
+    exemple: null
+  },
+
+  6: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 C'est quoi le Gross Margin % ?</div>
+        <div class="es-content">
+          C'est le pourcentage du CA qui reste après avoir payé les <b>coûts directs de production ou de livraison du service</b> (= COGS). Plus c'est élevé, plus tu gardes de marge pour payer tes autres charges.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🔤 COGS = Cost of Goods Sold</div>
+        <div class="es-content">
+          Coûts <em>directement</em> liés à la production/livraison. Pour un SaaS : serveurs, coût du support client. Pour une boutique : achat des marchandises revendues.
+          <br><br><b>Attention :</b> le loyer du bureau ou le salaire du CEO ne sont pas dans le COGS — ce sont des Opex (coûts opérationnels indirects).
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 La formule</div>
+        <div class="es-content"><div class="formula-pill">Gross Margin % = (Net Sales − COGS) / Net Sales × 100</div></div>
+      </div>`,
+    exemple: {
+      titre: "🖥️ Exemple — SaaS",
+      lignes: [
+        { k: "Net Sales (CA)", v: "500 000 €" },
+        { k: "COGS (hébergement + support)", v: "100 000 €" },
+        { k: "Gross Profit = 500 000 − 100 000", v: "400 000 €" },
+        { k: "Gross Margin % = 400 000 / 500 000 × 100", v: "80 %", result: true }
+      ],
+      conclusion: "→ 80 cents de chaque euro de CA restent disponibles. Les SaaS ont souvent 70-90% de marge brute. Un restaurant tourne plutôt autour de 30-40%."
+    }
+  },
+
+  7: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 C'est quoi le CLV ?</div>
+        <div class="es-content">
+          <b>CLV = Customer Lifetime Value</b> = la valeur totale qu'un client va t'apporter pendant toute la durée où il reste client. C'est la métrique centrale en SaaS : elle te dit combien vaut réellement un client.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🔤 Lexique complet</div>
+        <div class="defs-row">
+          <div class="def-chip"><b>ARPA</b> = Average Revenue Per Account = revenu moyen par client par mois</div>
+          <div class="def-chip"><b>Gross Margin %</b> = % du revenu qui reste après les coûts directs</div>
+          <div class="def-chip"><b>Lifetime</b> = durée de vie moyenne d'un client</div>
+          <div class="def-chip"><b>Churn Rate</b> = % de clients qui partent chaque mois</div>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 Les 2 formules à connaître</div>
+        <div class="es-content">
+          <div class="formula-pill">Lifetime = 1 / Churn Rate</div>
+          <div style="margin-top:8px"></div>
+          <div class="formula-pill">CLV = ARPA × Gross Margin% × Lifetime</div>
+        </div>
+        <div class="why-box" style="margin-top:8px">💡 <b>Pourquoi × Gross Margin ?</b> Parce que tu ne gardes pas 100% de ce que le client paie — une partie part dans les coûts directs (serveurs, support…). Le CLV mesure la valeur <em>nette</em> que le client t'apporte.</div>
+      </div>`,
+    exemple: {
+      titre: "🚀 Exemple — Startup SaaS B2B",
+      lignes: [
+        { k: "ARPA", v: "500 €/mois" },
+        { k: "Gross Margin %", v: "80 %" },
+        { k: "Churn Rate", v: "5 %/mois" },
+        { k: "Lifetime = 1 / 0,05", v: "20 mois" },
+        { k: "CLV = 500 × 0,80 × 20", v: "8 000 €", result: true }
+      ],
+      conclusion: "→ Chaque client que tu acquiers vaut en moyenne 8 000€ de profit brut. Si ton CAC est de 2 000€, le ratio CLV/CAC est de 4 → business sain !"
+    }
+  },
+
+  8: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 C'est quoi le Payback Period ?</div>
+        <div class="es-content">
+          C'est le temps qu'il faut pour <b>récupérer ce qu'il t'a coûté d'acquérir un client (CAC)</b>. Plus c'est court, mieux c'est — ça veut dire que tu récupères vite ton investissement marketing/sales.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🔤 CAC = Customer Acquisition Cost</div>
+        <div class="es-content">Tout ce que tu dépenses pour obtenir 1 client : publicité, salaires commerciaux, événements… divisé par le nombre de clients acquis.</div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 Formules</div>
+        <div class="es-content">
+          <div class="formula-pill">Payback = CAC / (ARPA × Gross Margin%)</div>
+          <div style="margin-top:8px"></div>
+          <div class="formula-pill">CLV / CAC ≥ 3 = business sain</div>
+        </div>
+        <div class="why-box" style="margin-top:8px">💡 <b>Règle des 3x :</b> Si CLV/CAC = 3, pour chaque 1€ dépensé pour acquérir un client, tu en récupères 3. En dessous de 3, ton acquisition coûte trop cher par rapport à ce que le client t'apporte.</div>
+      </div>`,
+    exemple: {
+      titre: "📊 Exemple",
+      lignes: [
+        { k: "CAC", v: "1 200 €" },
+        { k: "ARPA", v: "200 €/mois" },
+        { k: "Gross Margin %", v: "75 %" },
+        { k: "Gain mensuel net = 200 × 0,75", v: "150 €/mois" },
+        { k: "Payback = 1 200 / 150", v: "8 mois", result: true }
+      ],
+      conclusion: "→ Il faut 8 mois pour récupérer le coût d'acquisition. C'est raisonnable en SaaS B2B (idéalement < 12 mois)."
+    }
+  },
+
+  9: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Burn Rate & Runway — les 2 métriques de survie</div>
+        <div class="es-content">
+          <b>Burn Rate</b> = combien d'argent la startup dépense chaque mois (quand les dépenses > revenus).<br><br>
+          <b>Runway</b> = combien de mois il reste avant de manquer d'argent si rien ne change.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 Formule</div>
+        <div class="es-content"><div class="formula-pill">Runway = Trésorerie / Burn Rate</div></div>
+      </div>`,
+    exemple: {
+      titre: "⏱️ Le calcul de cette question",
+      lignes: [
+        { k: "Trésorerie disponible", v: "300 000 €" },
+        { k: "Burn Rate", v: "50 000 €/mois" },
+        { k: "Runway = 300 000 / 50 000", v: "6 mois", result: true },
+        { k: "Traffic Light ?", v: "🟡 AMBER (6 à 12 mois)" }
+      ],
+      conclusion: "→ 6 mois de Runway = zone AMBER. Pas encore la panique, mais il faut agir : lever des fonds, réduire les dépenses, ou accélérer les ventes."
+    }
+  },
+
+  10: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Les 3 niveaux de validation marché</div>
+        <div class="es-content">
+          Avant de dire "mon business model est validé", il faut passer par 3 étapes. Chaque étape donne plus de certitude.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="example-block" style="font-size:0.84rem;">
+          <div class="ex-row"><span class="ex-k">🔵 Niveau 1 — Validation du Problème</span><span class="ex-v">Les gens reconnaissent le problème</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Interviews, sondages. "Oui ce problème existe pour moi."</span></div>
+          <div class="ex-row" style="margin-top:8px"><span class="ex-k">🟡 Niveau 2 — Validation de la Solution</span><span class="ex-v">Ils s'engagent sans payer encore</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Signature d'un LOI, MOU, liste d'attente, pilote gratuit.</span></div>
+          <div class="ex-row" style="margin-top:8px"><span class="ex-k">🟢 Niveau 3 — Validation Économique</span><span class="ex-v">Ils paient vraiment</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Premier vrai paiement. Rien ne vaut ce signal.</span></div>
+        </div>
+        <div class="why-box" style="margin-top:10px">💡 <b>LOI = Letter of Intent.</b> C'est une lettre où un prospect dit "je suis intéressé et je m'engage à tester" — mais il n'a pas encore sorti sa carte bleue. C'est donc du Niveau 2.</div>
+      </div>`,
+    exemple: null
+  },
+
+  11: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Le Traffic Light de la Runway</div>
+        <div class="es-content">
+          C'est un code couleur simple pour alerter les dirigeants sur l'urgence de la situation de trésorerie.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="example-block" style="font-size:0.86rem;">
+          <div class="ex-row"><span class="ex-k">🔴 RED</span><span class="ex-v">Runway &lt; 6 mois → URGENCE</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Lever des fonds ou couper les dépenses immédiatement.</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">🟡 AMBER</span><span class="ex-v">Runway 6 à 12 mois → ATTENTION</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Il faut agir dans les prochains mois.</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">🟢 GREEN</span><span class="ex-v">Runway &gt; 12 mois → OK</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ On peut se concentrer sur la croissance.</span></div>
+        </div>
+      </div>`,
+    exemple: null
+  },
+
+  12: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Dashboard à 3 niveaux — qui voit quoi ?</div>
+        <div class="es-content">
+          Un bon dashboard n'est pas le même pour tout le monde. Plus tu montes dans la hiérarchie, plus les données sont <b>synthétiques et financières</b>. Plus tu descends, plus elles sont <b>détaillées et opérationnelles</b>.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="example-block" style="font-size:0.84rem;">
+          <div class="ex-row"><span class="ex-k">🟣 Level 1 — Board / Direction</span><span class="ex-v">Vision stratégique</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ MRR, Runway, CLV/CAC, Gross Margin%, Net Profit. Peu de chiffres, très importants.</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">🔵 Level 2 — Managers</span><span class="ex-v">Suivi par département</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Churn par segment, pipeline commercial, budget vs réel par équipe.</span></div>
+          <div class="ex-row" style="margin-top:6px"><span class="ex-k">🟢 Level 3 — Équipes opérationnelles</span><span class="ex-v">Métriques du quotidien</span></div>
+          <div class="ex-row" style="padding-left:12px;font-size:0.8rem;color:#64748b"><span>→ Tickets support résolus, leads générés par campagne, bugs corrigés.</span></div>
+        </div>
+      </div>`,
+    exemple: null
+  },
+
+  13: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 SUMIFS — la formule qui additionne avec des conditions</div>
+        <div class="es-content">
+          SUMIFS permet de <b>sommer uniquement les cellules qui correspondent à plusieurs critères</b>. Exemple : "additionne les ventes, mais seulement celles du mois de Mars ET du commercial Dupont".
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 L'ordre des paramètres (à ne jamais oublier)</div>
+        <div class="es-content">
+          <div class="formula-pill">SUMIFS(sum_range, criteria_range1, criteria1, criteria_range2, criteria2, …)</div>
+          <div class="defs-row" style="margin-top:10px">
+            <div class="def-chip"><b>sum_range</b> = la colonne à additionner (ex: colonne CA)</div>
+            <div class="def-chip"><b>criteria_range1</b> = la colonne où chercher le critère 1 (ex: colonne Mois)</div>
+            <div class="def-chip"><b>criteria1</b> = la valeur du critère 1 (ex: "Mars")</div>
+          </div>
+        </div>
+        <div class="why-box" style="margin-top:8px">🚨 <b>Le piège classique :</b> on met instinctivement le critère en premier. Mais non — la <b>plage à additionner (sum_range) va EN PREMIER</b>, avant les critères. C'est l'inverse de COUNTIFS (qui lui n'a pas de sum_range).</div>
+      </div>`,
+    exemple: {
+      titre: "📋 Exemple Excel concret",
+      lignes: [
+        { k: "Objectif", v: "Somme des ventes de Mars pour Dupont" },
+        { k: "Formule", v: "=SUMIFS(D:D, B:B, \"Mars\", C:C, \"Dupont\")" },
+        { k: "D:D", v: "= colonne CA à additionner (sum_range)" },
+        { k: "B:B, \"Mars\"", v: "= filtre sur la colonne Mois", result: true }
+      ],
+      conclusion: "→ Retiens : sum_range (ce qu'on additionne) TOUJOURS EN PREMIER dans SUMIFS."
+    }
+  },
+
+  14: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 XLOOKUP — chercher une valeur dans un autre tableau</div>
+        <div class="es-content">
+          XLOOKUP remplace l'ancien VLOOKUP. Tu lui donnes <b>ce que tu cherches</b>, tu lui dis <b>où le chercher</b>, et tu lui dis <b>quoi retourner</b>. C'est tout.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">📐 La formule</div>
+        <div class="es-content">
+          <div class="formula-pill">XLOOKUP(lookup_value, lookup_array, return_array)</div>
+          <div class="defs-row" style="margin-top:10px">
+            <div class="def-chip"><b>lookup_value</b> = ce qu'on cherche (ex: le nom "Dupont")</div>
+            <div class="def-chip"><b>lookup_array</b> = la colonne où on cherche (ex: colonne Noms)</div>
+            <div class="def-chip"><b>return_array</b> = la colonne à retourner (ex: colonne CA)</div>
+          </div>
+        </div>
+      </div>`,
+    exemple: {
+      titre: "📋 Exemple Excel",
+      lignes: [
+        { k: "Objectif", v: "Trouver le CA du client \"Dupont\" dans Table2" },
+        { k: "Formule", v: "=XLOOKUP(A2, Table2[Nom], Table2[CA])" },
+        { k: "A2", v: "= \"Dupont\" (lookup_value)" },
+        { k: "Table2[Nom]", v: "= colonne où chercher (lookup_array)", result: true }
+      ],
+      conclusion: "→ Moyen mémo : 1) ce que je cherche, 2) où je le cherche, 3) ce que je veux récupérer."
+    }
+  },
+
+  15: {
+    state: `
+      <div class="explain-section">
+        <div class="es-label">📖 Le Sunk Cost Fallacy — le biais des coûts irrécupérables</div>
+        <div class="es-content">
+          <b>Sunk Cost</b> = coût passé qu'on ne peut plus récupérer, quoi qu'il arrive. <b>Fallacy</b> = erreur de raisonnement.<br><br>
+          Le biais consiste à <b>continuer quelque chose qui ne marche pas, juste parce qu'on a déjà investi dedans</b>. C'est une erreur : l'argent dépensé est parti, rien ne le ramènera.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">💡 La bonne façon de raisonner</div>
+        <div class="es-content">
+          Peu importe ce qu'on a déjà dépensé. La seule question à se poser est : <b>"Si je repars de zéro aujourd'hui, est-ce que j'investirais dans ce projet ?"</b><br><br>
+          Si la réponse est non → il faut arrêter, même si ça fait mal.
+        </div>
+        <div class="why-box">💡 <b>Exemple du cinéma :</b> Tu as payé ton billet 15€. Le film est nul. Tu restes quand même "pour ne pas perdre l'argent". Erreur — l'argent est déjà perdu que tu partes ou non. La vraie question : est-ce que tu veux passer encore 1h30 à t'ennuyer ?</div>
+      </div>
+      <div class="explain-section">
+        <div class="es-label">🏢 Dans le cas de la question</div>
+        <div class="es-content">
+          Les 200 000€ déjà dépensés en dev ne reviendront jamais. La vraie décision à prendre : <b>"Est-ce que continuer à investir dans ce projet va créer de la valeur dans le futur ?"</b> Si non → pivoter ou arrêter.
+        </div>
+      </div>`,
+    exemple: null
+  }
+};
+
+// ══════════════════════════════════════════════════
+// LOGIQUE JS
+// ══════════════════════════════════════════════════
+function startQuiz() {
+  document.querySelector('.intro-box').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'flex';
+  document.getElementById('quizContainer').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setConf(qNum, level, btn) {
+  if (confidence[qNum]) return;
+  confidence[qNum] = level;
+  const card = document.getElementById('card-' + qNum);
+  card.querySelectorAll('.conf-btn').forEach(b => { b.classList.remove('sel'); b.classList.add('disabled'); });
+  btn.classList.remove('disabled'); btn.classList.add('sel');
+  card.querySelectorAll('.option').forEach(o => o.classList.add('unlocked'));
+}
+
+function choose(el, qNum) {
+  if (!confidence[qNum]) return;
+  const container = el.closest('.options');
+  if (container.dataset.locked) return;
+  container.dataset.locked = 'true';
+  const options = Array.from(container.querySelectorAll('.option'));
+  const idx = options.indexOf(el);
+  const correct = parseInt(container.dataset.correct);
+  const topic = container.dataset.topic;
+  const conf = confidence[qNum];
+  const isCorrect = idx === correct;
+  options.forEach(o => o.classList.add('locked'));
+  options[correct].classList.add('correct');
+  options[correct].querySelector('.dot').textContent = '✓';
+  if (isCorrect) { scoreCount++; } else { el.classList.add('wrong'); el.querySelector('.dot').textContent = '✗'; }
+  answered++;
+  document.getElementById('scoreDisplay').textContent = scoreCount + ' / ' + TOTAL;
+  document.getElementById('progressFill').style.width = (answered / TOTAL * 100) + '%';
+  document.getElementById('progressText').textContent = answered + ' / ' + TOTAL;
+  results[qNum] = { correct: isCorrect, conf, topic };
+  showMetaFeedback(qNum, isCorrect, conf);
+  document.getElementById('card-' + qNum).classList.add('answered');
+}
+
+function buildExemple(ex) {
+  if (!ex) return '';
+  let rows = ex.lignes.map(l => `
+    <div class="ex-row ${l.result ? 'ex-result' : ''}">
+      <span class="ex-k">${l.k}</span>
+      <span class="ex-v">${l.v}</span>
+    </div>`).join('');
+  return `<div class="example-block">
+    <div style="font-size:0.8rem;font-weight:700;color:#a78bfa;margin-bottom:8px;">${ex.titre}</div>
+    ${rows}
+    ${ex.conclusion ? `<div style="margin-top:10px;font-size:0.83rem;color:#94a3b8;border-top:1px solid #1e293b;padding-top:8px;">${ex.conclusion}</div>` : ''}
+  </div>`;
+}
+
+function showMetaFeedback(qNum, isCorrect, conf) {
+  const mf = document.getElementById('mf-' + qNum);
+  let cls, title, body, reflect = false;
+
+  if (isCorrect && conf === 'sure') { cls = 'mf-mastered'; title = '✅ Maîtrisé !'; body = 'Tu savais et t\'avais raison. Lis quand même l\'explication — ça consolide.'; }
+  else if (isCorrect && conf === 'maybe') { cls = 'mf-growth'; title = '📈 Zone de progression'; body = 'Bonne réponse, mais tu n\'étais pas sûr·e. Lis l\'explication pour vraiment ancrer ça.'; }
+  else if (isCorrect && conf === 'guess') { cls = 'mf-lucky'; title = '🍀 Chanceux·se !'; body = 'Bonne réponse mais tu as deviné. Lis l\'explication — t\'as besoin de comprendre le fond.'; reflect = true; }
+  else if (!isCorrect && conf === 'sure') { cls = 'mf-blind'; title = '🚨 Angle mort ! Tu étais sûr·e mais c\'est faux.'; body = 'C\'est le signal le plus important. Lis l\'explication attentivement — c\'est ta priorité numéro 1.'; reflect = true; }
+  else if (!isCorrect && conf === 'maybe') { cls = 'mf-known-gap'; title = '⚠️ Gap connu'; body = 'Tu n\'étais pas sûr·e, et effectivement. Lis l\'explication pour combler ce trou.'; reflect = true; }
+  else { cls = 'mf-gap'; title = '📝 Gap honnête'; body = 'Tu ne savais pas et tu l\'as reconnu. Pas de honte — lis l\'explication.'; reflect = true; }
+
+  const exp = explanations[qNum];
+  const exempleHtml = exp && exp.exemple ? buildExemple(exp.exemple) : '';
+
+  let html = `<div class="${cls}">
+    <div class="mf-title">${title}</div>
+    <div class="mf-body">${body}</div>
+  </div>
+  <div class="explain-box">
+    <div class="ex-title">📚 Explication complète</div>
+    ${exp ? exp.state : ''}
+    ${exempleHtml}
+  </div>`;
+
+  if (reflect) {
+    html += `<div class="reflect-prompt">
+      <p>🤔 Pourquoi tu penses avoir raté cette question ?</p>
+      <select class="reflect-select">
+        <option value="">— Sélectionne une raison —</option>
+        <option>Je ne connaissais pas du tout ce point</option>
+        <option>Je confondais avec une autre notion</option>
+        <option>Je ne comprenais pas les abréviations</option>
+        <option>J'avais appris mais j'ai oublié</option>
+        <option>Je n'avais pas compris le concept en profondeur</option>
+      </select>
+    </div>`;
+  }
+
+  mf.innerHTML = html;
+  mf.classList.add('show');
+}
+
+function showDashboard() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreBar').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  const mastered=[], growth=[], lucky=[], blindSpots=[], knownGaps=[], gaps=[];
+  for (let q in results) {
+    const r = results[q];
+    if (r.correct && r.conf==='sure') mastered.push(r.topic);
+    else if (r.correct && r.conf==='maybe') growth.push(r.topic);
+    else if (r.correct && r.conf==='guess') lucky.push(r.topic);
+    else if (!r.correct && r.conf==='sure') blindSpots.push(r.topic);
+    else if (!r.correct && r.conf==='maybe') knownGaps.push(r.topic);
+    else gaps.push(r.topic);
+  }
+  const pct = Math.round(scoreCount / TOTAL * 100);
+  document.getElementById('dashScore').textContent = scoreCount + ' / ' + TOTAL + ' (' + pct + '%)';
+  let msg = pct >= 80 ? 'Excellente maîtrise du BPFS !' : pct >= 60 ? 'Bonne base — quelques notions à consolider.' : 'Du boulot, mais maintenant tu sais exactement où focaliser !';
+  document.getElementById('dashSub').textContent = msg;
+  const allLucky = lucky.length > 0 ? ' · 🍀 ' + lucky.length + ' chanceux' : '';
+  document.getElementById('dashGrid').innerHTML = `
+    <div class="dash-card dc-mastered"><div class="dc-header"><span class="dc-icon">✅</span><span class="dc-title">Maîtrisé</span></div><div class="dc-count">${mastered.length}</div><div class="dc-desc">Tu savais ET tu avais raison${allLucky}</div><div class="topic-list">${mastered.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#10b981"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun pour l\'instant</div>'}</div></div>
+    <div class="dash-card dc-growth"><div class="dc-header"><span class="dc-icon">📈</span><span class="dc-title">Zone de progression</span></div><div class="dc-count">${growth.length}</div><div class="dc-desc">Bonne réponse mais pas sûr·e</div><div class="topic-list">${growth.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#4ade80"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun</div>'}</div></div>
+    <div class="dash-card dc-blind"><div class="dc-header"><span class="dc-icon">🚨</span><span class="dc-title">Angles Morts</span></div><div class="dc-count">${blindSpots.length}</div><div class="dc-desc">Sûr·e mais faux·sse — PRIORITÉ 1</div><div class="topic-list">${blindSpots.map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f97316"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucun angle mort 🎉</div>'}</div></div>
+    <div class="dash-card dc-gap"><div class="dc-header"><span class="dc-icon">📝</span><span class="dc-title">Lacunes</span></div><div class="dc-count">${knownGaps.length+gaps.length}</div><div class="dc-desc">Points à apprendre</div><div class="topic-list">${[...knownGaps,...gaps].map(t=>`<div class="topic-item"><div class="topic-dot" style="background:#f87171"></div>${t}</div>`).join('')||'<div style="color:#4b5563;font-size:0.8rem;margin-top:6px;">Aucune lacune 🔥</div>'}</div></div>`;
+  let steps = '';
+  if (blindSpots.length > 0) steps += `<div class="plan-step"><div class="plan-num pn-1">1</div><div class="plan-content"><b>🚨 URGENT — Tes angles morts :</b><br>Tu étais certain·e mais faux·sse sur : <em>${blindSpots.join(', ')}</em>.<br>Relis les explications de ces questions, refais les calculs à la main.</div></div>`;
+  const toLearn = [...knownGaps, ...gaps];
+  if (toLearn.length > 0) steps += `<div class="plan-step"><div class="plan-num pn-2">${blindSpots.length>0?'2':'1'}</div><div class="plan-content"><b>📚 Comble tes lacunes :</b><br>À maîtriser : <em>${toLearn.join(', ')}</em>.<br>Relis les explications, essaie de refaire les exemples chiffrés sans regarder.</div></div>`;
+  if (lucky.length > 0) steps += `<div class="plan-step"><div class="plan-num pn-2">⚠️</div><div class="plan-content"><b>🍀 Méfie-toi des coups de chance sur :</b> <em>${lucky.join(', ')}</em>.<br>Tu as eu juste mais sans vraiment comprendre — relis l'explication.</div></div>`;
+  if (growth.length > 0) steps += `<div class="plan-step"><div class="plan-num pn-3">${blindSpots.length>0||toLearn.length>0?'3':'1'}</div><div class="plan-content"><b>📈 Consolide ta progression :</b><br>Bonne réponse mais incertain·e sur : <em>${growth.join(', ')}</em>.<br>Encore 2-3 exercices et ce sera vraiment solide.</div></div>`;
+  if (mastered.length === TOTAL) steps = `<div class="plan-step"><div class="plan-num pn-3">🏆</div><div class="plan-content"><b>Parfait !</b> Tu maîtrises tout. Garde ça frais avec un cas pratique complet avant l'exam.</div></div>`;
+  document.getElementById('planSteps').innerHTML = steps || `<div class="plan-step"><div class="plan-num pn-3">✨</div><div class="plan-content">Continue à t'entraîner régulièrement !</div></div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restartQuiz() {
+  scoreCount=0; answered=0;
+  Object.keys(confidence).forEach(k=>delete confidence[k]);
+  Object.keys(results).forEach(k=>delete results[k]);
+  document.getElementById('dashboard').style.display='none';
+  document.querySelector('.intro-box').style.display='block';
+  document.getElementById('scoreBar').style.display='none';
+  document.getElementById('quizContainer').style.display='none';
+  document.getElementById('scoreDisplay').textContent='0 / '+TOTAL;
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressText').textContent='0 / '+TOTAL;
+  document.querySelectorAll('.card').forEach(c=>{
+    c.classList.remove('answered');
+    c.querySelectorAll('.option').forEach(o=>{o.classList.remove('correct','wrong','locked','unlocked');o.querySelector('.dot').textContent='';});
+    c.querySelectorAll('.conf-btn').forEach(b=>b.classList.remove('sel','disabled'));
+    c.querySelectorAll('.options').forEach(o=>delete o.dataset.locked);
+    c.querySelectorAll('.meta-feedback').forEach(mf=>{mf.classList.remove('show');mf.innerHTML='';});
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
